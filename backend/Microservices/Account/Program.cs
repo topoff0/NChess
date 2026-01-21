@@ -1,5 +1,4 @@
 using Account.Data;
-using Microsoft.OpenApi.Models;
 using Account.JWT.Services;
 using Account.JWT.Configuration;
 using Account.Services.Interfaces;
