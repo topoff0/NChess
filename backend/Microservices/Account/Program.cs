@@ -31,29 +31,8 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Account_Chess API", Version = "v1.0.0" });
 });
 
-// Add Cors
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(options =>
-    {
-        options.WithOrigins("http://localhost:5173")
-            .SetIsOriginAllowedToAllowWildcardSubdomains()
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
-
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account_Chess API v1.0.0");
-    });
-}
 
 var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 if (!Directory.Exists(wwwrootPath))
@@ -75,12 +54,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images"
 });
 
-app.UseRouting();
 
-app.UseCors();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
