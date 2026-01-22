@@ -33,6 +33,11 @@ public class PlayerRepository(UserDbContext context) : IPlayerRepository
         return await _context.Players.FindAsync([id], token);
     }
 
+    public async Task<bool> IsExistsByEmail(string email, CancellationToken token = default)
+    {
+        return await _context.Players.AnyAsync(p => p.Email == email, token);
+    }
+
     public void Update(Player entity)
     {
         _context.Update(entity);

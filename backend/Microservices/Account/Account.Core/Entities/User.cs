@@ -10,5 +10,7 @@ namespace Account.Core.Entities
 
         public string VerificationCode { get; set; } = string.Empty;
         public bool IsEmailConfirmed { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; }
     }
 }
