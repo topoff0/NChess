@@ -1,4 +1,6 @@
-﻿using Account.Infrastructure.Persistence;
+﻿using Account.Application.Common.Interfaces;
+using Account.Infrastructure.Persistence;
+using Account.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,8 @@ public static class DependencyInjection
         )
     {
         services.AddUsersDbContext(configuration);
+
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         return services;
     }

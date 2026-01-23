@@ -10,6 +10,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
+//TODO: Replace with "scalal"
 builder.Services.AddMySwagger();
 
 builder.Services.AddInfrastructure(builder.Configuration);
