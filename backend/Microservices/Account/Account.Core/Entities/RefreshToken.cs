@@ -36,7 +36,7 @@ namespace Account.Core.Entities
 
         private static string GenerateSecurityToken()
         {
-            var randomBytes = new Byte[64];
+            var randomBytes = new byte[64];
 
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomBytes);
