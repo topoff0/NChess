@@ -1,6 +1,6 @@
 ﻿namespace Account.Core.Entities;
 
-public class RegistrationSession
+public class AuthSession
 {
     public string Email { get; set; } = string.Empty;
     public RegistrationMethod Method { get; set; }
