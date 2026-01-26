@@ -23,19 +23,9 @@ public class PlayerRepository(UsersDbContext context) : IPlayerRepository
        return await _context.Players.ToListAsync(token);
     }
 
-    public Task<Player?> GetByEmailAsync(string email, CancellationToken token = default)
-    {
-        return _context.Players.FirstOrDefaultAsync(p => p.Email == email, token);
-    }
-
     public async Task<Player?> GetByIdAsync(Guid id, CancellationToken token = default)
     {
         return await _context.Players.FindAsync([id], token);
-    }
-
-    public async Task<bool> IsExistsByEmail(string email, CancellationToken token = default)
-    {
-        return await _context.Players.AnyAsync(p => p.Email == email, token);
     }
 
     public void Update(Player entity)

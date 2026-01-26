@@ -4,15 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Account.Infrastructure.Persistence.Configuration;
 
-public class UserConfiguration : IEntityTypeConfiguration<Player>
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<Player> builder)
+    public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.ToTable("Users", "account");
-
-        builder.HasMany(p => p.Friends)
-        .WithMany()
-        .UsingEntity(j => j.ToTable("PlayerFriends"));
 
         builder.Property(p => p.Email)
           .IsRequired()

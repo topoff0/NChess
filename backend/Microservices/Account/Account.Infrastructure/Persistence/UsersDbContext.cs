@@ -5,6 +5,7 @@ namespace Account.Infrastructure.Persistence
 {
     public class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
     {
+        public DbSet<User> Users { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; }
 

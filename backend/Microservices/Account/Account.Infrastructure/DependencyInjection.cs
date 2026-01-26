@@ -80,6 +80,7 @@ public static class DependencyInjection
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IPlayerRepository, PlayerRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IEmailVerificationCodeRepository, EmailVerificationRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

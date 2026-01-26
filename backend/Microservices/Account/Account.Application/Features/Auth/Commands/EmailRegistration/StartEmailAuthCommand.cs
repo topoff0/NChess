@@ -12,13 +12,13 @@ namespace Account.Application.Features.Auth.Commands.EmailRegistration;
 public record StartEmailAuthCommand(string Email)
     : IRequest<ResultT<IsUserExistsResult>>;
 
-public sealed class StartEmailAuthCommandHandler(IPlayerRepository playerRepository,
+public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
                                                  IEmailVerificationCodeRepository codeRepository,
                                                  IUnitOfWork unitOfWork,
                                                  IEmailServiceSender emailService)
     : IRequestHandler<StartEmailAuthCommand, ResultT<IsUserExistsResult>>
 {
-    private readonly IPlayerRepository _playerRepository = playerRepository;
+    private readonly IUserRepository _userRepository = userRepository;
     private readonly IEmailVerificationCodeRepository _codeRepository = codeRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IEmailServiceSender _emailService = emailService;
@@ -29,7 +29,7 @@ public sealed class StartEmailAuthCommandHandler(IPlayerRepository playerReposit
             if (string.IsNullOrEmpty(request.Email))
                 Error.Validation("email.invalid", "Email format is not valid");
 
-        bool isPlayerExists = await _playerRepository.IsExistsByEmail(request.Email, token);
+        bool isPlayerExists = await _userRepository.IsExistsByEmail(request.Email, token);
         if (!isPlayerExists)
         {
             string code = GenerateCode();
