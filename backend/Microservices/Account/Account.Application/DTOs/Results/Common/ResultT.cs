@@ -21,7 +21,9 @@ public sealed class ResultT<TValue> : Result
     }
 
     public TValue Value =>
-        IsSuccess ? _value! : throw new InvalidOperationException("Value can not be accessed when IsSuccess is false");
+        IsSuccess
+        ? _value!
+        : throw new InvalidOperationException("Value can not be accessed when IsSuccess is false");
 
     public static implicit operator ResultT<TValue>(Error error) =>
         new(error);

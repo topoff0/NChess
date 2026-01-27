@@ -40,9 +40,9 @@ public class User
         };
 
 
-    public void SetUser(string username, string hash, string imagePath)
+    public void SetUser(string username, string passwordHash, string imagePath)
     {
-        PasswordHash = hash;
+        PasswordHash = passwordHash;
         Username = username;
         ImagePath = imagePath;
         Status = UserStatus.Active;

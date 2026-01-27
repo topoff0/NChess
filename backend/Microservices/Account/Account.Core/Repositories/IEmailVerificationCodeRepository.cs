@@ -5,5 +5,5 @@ namespace Account.Core.Repositories;
 
 public interface IEmailVerificationCodeRepository : IRepository<EmailVerificationCode>
 {
-
+    Task<EmailVerificationCode?> GetActiveByEmailAsync(string email, CancellationToken token);
 }

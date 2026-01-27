@@ -26,8 +26,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
     public async Task<ResultT<IsUserExistsResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
     {
         if (string.IsNullOrEmpty(request.Email)) //TODO: Implement real email validation
-            if (string.IsNullOrEmpty(request.Email))
-                Error.Validation("email.invalid", "Email format is not valid");
+            return Error.Validation("email.invalid", "Email format is not valid");
 
         bool isPlayerExists = await _userRepository.IsExistsByEmail(request.Email, token);
         if (!isPlayerExists)
@@ -35,8 +34,9 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
             string code = GenerateCode();
 
             await _emailService.SendVerificationCodeAsync(request.Email, code, token);
-
             await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Email, code), token);
+            await _userRepository.AddAsync(User.CreatePending(request.Email, AuthProvider.Email), token);
+
             await _unitOfWork.SaveChangesAsync(token);
 
             return new IsUserExistsResult(IsExists: false);

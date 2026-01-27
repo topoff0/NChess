@@ -10,12 +10,31 @@ public class EmailVerificationRepository(UsersDbContext context) : IEmailVerific
 
     public async Task AddAsync(EmailVerificationCode entity, CancellationToken token = default)
     {
+        var activeCodes = await _context.EmailVerificationCodes
+            .Where(c =>
+                    c.Email == entity.Email
+                    && c.ExpiryAt > DateTime.UtcNow
+                    && c.IsManuallyDeactivated == false)
+            .ToListAsync(token);
+
+        foreach (var code in activeCodes)
+        {
+            code.Deactivate();
+        }
+
+
         await _context.EmailVerificationCodes.AddAsync(entity, token);
     }
 
     public void Delete(EmailVerificationCode entity)
     {
         _context.EmailVerificationCodes.Remove(entity);
+    }
+
+    public async Task<EmailVerificationCode?> GetActiveByEmailAsync(string email, CancellationToken token)
+    {
+        return await _context.EmailVerificationCodes.FirstOrDefaultAsync(
+                c => c.Email == email && c.ExpiryAt > DateTime.UtcNow, token);
     }
 
     public async Task<IEnumerable<EmailVerificationCode>> GetAllAsync(CancellationToken token = default)
