@@ -1,6 +1,7 @@
 ﻿using Account.Application.DTOs.Errors;
 using Account.Application.DTOs.Results.Common;
-using Account.Application.Features.Auth.DTOs;
+using Account.Application.Features.Auth.DTOs.Requests;
+using Account.Application.Features.Auth.DTOs.Results;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
 using Account.Core.Security;
@@ -8,7 +9,7 @@ using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.EmailRegistration;
 
-public record VerifyEmailCommand(string Email, string VerificationCode)
+public record VerifyEmailCommand(VerifyEmailDto Dto)
     : IRequest<ResultT<VerifyEmailResult>>;
 
 public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
@@ -24,18 +25,18 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
 
     public async Task<ResultT<VerifyEmailResult>> Handle(VerifyEmailCommand request, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(request.Email))
+        if (string.IsNullOrEmpty(request.Dto.Email)) //TODO: Implement real email validation
             return Error.Validation("email.invalid", "Incorrect email format");
 
-        var user = await _userRepository.GetByEmailAsync(request.Email, token);
+        var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
         if (user is null)
             return Error.NotFound("user.NotFound", "User is not found");
 
-        var codeEntity = await _codeRepository.GetActiveByEmailAsync(request.Email, token);
+        var codeEntity = await _codeRepository.GetActiveByEmailAsync(request.Dto.Email, token);
         if (codeEntity is null)
             return Error.NotFound("verificationCode.notFound", "Verification code is not found.");
 
-        bool isCodeCorrect = _codeHasher.Verify(request.VerificationCode, codeEntity.HashedCode);
+        bool isCodeCorrect = _codeHasher.Verify(request.Dto.VerificationCode, codeEntity.HashedCode);
         if(!isCodeCorrect)
             return Error.Failure("verificationCode.Incorrect", "Incorrect verificationCode");
 

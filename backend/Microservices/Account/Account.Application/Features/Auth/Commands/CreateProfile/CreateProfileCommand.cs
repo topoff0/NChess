@@ -1,6 +1,45 @@
-﻿namespace Account.Application;
+﻿using Account.Application.DTOs.Errors;
+using Account.Application.DTOs.Results.Common;
+using Account.Application.Features.Auth.DTOs.Requests;
+using Account.Application.Features.Auth.DTOs.Results;
+using Account.Core.Entities;
+using Account.Core.Repositories;
+using Account.Core.Repositories.Common;
+using Account.Core.Security;
+using MediatR;
 
-public class CreateProfileCommand
+namespace Account.Application.Features.Auth.Commands.CreateProfile;
+
+public record CreateProfileCommand(CreateProfileDto Dto)
+    : IRequest<ResultT<CreateProfileResult>>;
+
+public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
+                                                IPlayerRepository playerRepository,
+                                                IUnitOfWork unitOfWork,
+                                                IPasswordHasher passwordHasher)
+    : IRequestHandler<CreateProfileCommand, ResultT<CreateProfileResult>>
 {
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IPlayerRepository _playerRepository = playerRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
 
+    public async Task<ResultT<CreateProfileResult>> Handle(CreateProfileCommand request, CancellationToken token)
+    {
+        //TODO: Validaation check
+
+        var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
+        if (user is null)
+            return Error.NotFound("user.notFound", "User is not found");
+
+        var hashedPassword = _passwordHasher.Hash(request.Dto.Password);
+        user.SetUser(request.Dto.Username, hashedPassword, "image/path"); // TODO: Create ImageService to handle images operations
+
+        var player = Player.Create(user.Id);
+        await _playerRepository.AddAsync(player, token);
+
+        await _unitOfWork.SaveChangesAsync(token);
+
+        return ResultT<CreateProfileResult>.Success(new(IsCreated: true));
+    }
 }
