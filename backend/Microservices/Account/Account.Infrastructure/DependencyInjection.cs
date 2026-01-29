@@ -1,4 +1,7 @@
 ﻿using Account.Application.Common.Interfaces;
+using Account.Application.Features.Auth.Commands.CreateProfile;
+using Account.Application.Features.Auth.Commands.EmailRegistration;
+using Account.Application.Features.Auth.Commands.Login;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
 using Account.Core.Security;
@@ -102,6 +105,15 @@ public static class DependencyInjection
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblies(typeof(StartEmailAuthCommand).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(VerifyEmailCommand).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CreateProfileCommand).Assembly);
+        });
+
+
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         services.AddScoped<IEmailSenderService, EmailSenderService>();
