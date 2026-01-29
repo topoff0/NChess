@@ -20,7 +20,7 @@ public static class SwaggerExtension
 
     public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, IHostEnvironment env)
     {
-        if (!env.IsDevelopment())
+        if (env.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>

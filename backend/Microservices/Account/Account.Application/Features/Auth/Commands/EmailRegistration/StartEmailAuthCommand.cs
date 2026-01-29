@@ -1,5 +1,6 @@
 ﻿using Account.Application.Common.Interfaces;
 using Account.Application.DTOs.Errors;
+using Account.Application.DTOs.Requests.EmailSender;
 using Account.Application.DTOs.Results.Common;
 using Account.Application.Features.Auth.DTOs.Requests;
 using Account.Application.Features.Auth.DTOs.Results;
@@ -32,10 +33,21 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
         bool isPlayerExists = await _userRepository.IsExistsByEmail(request.Dto.Email, token);
         if (!isPlayerExists)
         {
-            string code = GenerateCode();
+            string verificationCode = GenerateCode();
 
-            await _emailService.SendEmailAsync(request.Dto.Email,"Pixel chess", code, token);
-            await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, code), token);
+            var sendRequest = new SendEmailDto
+            (
+                Recipient: request.Dto.Email,
+                Subject: "Pixel Chess",
+                Body: $"""
+                <h1>Email Verification</h1>
+                <p>Your verification code is: <strong>{verificationCode}</strong></p>
+                <p>This code will expire in 10 minutes.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+                """
+            );
+            await _emailService.SendEmailAsync(sendRequest, token);
+            await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, verificationCode), token);
             await _userRepository.AddAsync(User.CreatePending(request.Dto.Email, AuthProvider.Email), token);
 
             await _unitOfWork.SaveChangesAsync(token);
