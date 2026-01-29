@@ -25,22 +25,22 @@ public sealed class LoginCommandHandler(IUserRepository userRepository,
     public async Task<ResultT<LoginResult>> Handle(LoginCommand request, CancellationToken token)
     {
         if (string.IsNullOrEmpty(request.Dto.Email))
-            return Error.Validation("email.invalid", "Incorrect email format");
+            return Error.Validation(ErrorCodes.InvalidEmail, ErrorMessages.InvalidEmail);
 
         var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
         if (user is null)
-            return Error.NotFound("user.notFound", "User is not found");
+            return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
         if (user.Status != UserStatus.Active)
-            return Error.Conflict("user.accountIsNotActivated", "User is not activated");
+            return Error.Conflict(ErrorCodes.AccountNotActivated, ErrorCodes.AccountNotActivated);
 
         if (!_passwordHasher.Verify(request.Dto.Password, user.PasswordHash))
-            return Error.Failure("user.incorrectPassword", "Password is not correct");
+            return Error.Failure(ErrorCodes.IncorrectPassword, ErrorMessages.IncorrectPassword);
 
         user.UpdateLastLoginTime();
 
         await _unitOfWork.SaveChangesAsync(token);
 
-        return ResultT<LoginResult>.Success(new(true));
+        return new LoginResult(IsSuccess: true);
     }
 }

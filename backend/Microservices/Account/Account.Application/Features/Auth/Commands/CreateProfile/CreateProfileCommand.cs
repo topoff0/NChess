@@ -30,7 +30,7 @@ public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
 
         var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
         if (user is null)
-            return Error.NotFound("user.notFound", "User is not found");
+            return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
         var hashedPassword = _passwordHasher.Hash(request.Dto.Password);
         user.SetUser(request.Dto.Username, hashedPassword, "image/path"); // TODO: Create ImageService to handle images operations

@@ -28,34 +28,33 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
     public async Task<ResultT<IsUserExistsResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
     {
         if (string.IsNullOrEmpty(request.Dto.Email)) //TODO: Implement real email validation
-            return Error.Validation("email.invalid", "Incorrect email format");
+            return Error.Validation(ErrorCodes.InvalidEmail, ErrorMessages.InvalidEmail);
 
         bool isPlayerExists = await _userRepository.IsExistsByEmail(request.Dto.Email, token);
-        if (!isPlayerExists)
-        {
-            string verificationCode = GenerateCode();
+        if (isPlayerExists)
+            return new IsUserExistsResult(IsExists: true);
 
-            var sendRequest = new SendEmailDto
-            (
-                Recipient: request.Dto.Email,
-                Subject: "Pixel Chess",
-                Body: $"""
+
+        string verificationCode = GenerateCode();
+        var sendRequest = new SendEmailDto
+        (
+            Recipient: request.Dto.Email,
+            Subject: "Pixel Chess",
+            Body: $"""
                 <h1>Email Verification</h1>
                 <p>Your verification code is: <strong>{verificationCode}</strong></p>
                 <p>This code will expire in 10 minutes.</p>
                 <p>If you didn't request this, please ignore this email.</p>
                 """
-            );
-            await _emailService.SendEmailAsync(sendRequest, token);
-            await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, verificationCode), token);
-            await _userRepository.AddAsync(User.CreatePending(request.Dto.Email, AuthProvider.Email), token);
+        );
+        await _emailService.SendEmailAsync(sendRequest, token);
 
-            await _unitOfWork.SaveChangesAsync(token);
+        await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, verificationCode), token);
+        await _userRepository.AddAsync(User.CreatePending(request.Dto.Email, AuthProvider.Email), token);
 
-            return new IsUserExistsResult(IsExists: false);
-        }
+        await _unitOfWork.SaveChangesAsync(token);
 
-        return new IsUserExistsResult(IsExists: true);
+        return new IsUserExistsResult(IsExists: false);
     }
 
     private static string GenerateCode()

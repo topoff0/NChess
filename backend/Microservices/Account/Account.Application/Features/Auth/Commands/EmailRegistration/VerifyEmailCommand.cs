@@ -26,19 +26,19 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
     public async Task<ResultT<VerifyEmailResult>> Handle(VerifyEmailCommand request, CancellationToken token)
     {
         if (string.IsNullOrEmpty(request.Dto.Email)) //TODO: Implement real email validation
-            return Error.Validation("email.invalid", "Incorrect email format");
+            return Error.Validation(ErrorCodes.InvalidEmail, ErrorMessages.InvalidEmail);
 
         var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
         if (user is null)
-            return Error.NotFound("user.NotFound", "User is not found");
+            return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
         var codeEntity = await _codeRepository.GetActiveByEmailAsync(request.Dto.Email, token);
         if (codeEntity is null)
-            return Error.NotFound("verificationCode.notFound", "Verification code is not found.");
+            return Error.NotFound(ErrorCodes.VerificationCodeNotFound, ErrorMessages.VerificationCodeNotFound);
 
         bool isCodeCorrect = _codeHasher.Verify(request.Dto.VerificationCode, codeEntity.HashedCode);
         if(!isCodeCorrect)
-            return Error.Failure("verificationCode.Incorrect", "Incorrect verificationCode");
+            return new VerifyEmailResult(IsCodeCorrect: false); 
 
         codeEntity.UseCode();
 
@@ -46,6 +46,6 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
 
         //TODO: return JWT token
 
-        return ResultT<VerifyEmailResult>.Success(new VerifyEmailResult(true)); 
+        return new VerifyEmailResult(IsCodeCorrect: true); 
     }
 }
