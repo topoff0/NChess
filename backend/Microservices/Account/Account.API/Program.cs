@@ -21,7 +21,7 @@ builder.Services.AddMyCors();
 // ======================= APP ======================= 
 var app = builder.Build();
 
-// await app.Services.ApplyMigrationAsync();
+await app.Services.ApplyMigrationAsync();
 
 app.UseRouting();
 app.UseCors();

@@ -19,16 +19,16 @@ public class AccountController(IEmailSenderService emailSenderService,
     private readonly IMediator _mediator = mediator;
     private readonly IEmailSenderService _emailSenderService = emailSenderService;
 
-    [HttpPost("test")]
-    public async Task<IActionResult> SendEmail(SendEmailDto dto, CancellationToken token)
-    {
-        var result = await _emailSenderService.SendEmailAsync(dto, token);
-
-        if (!result.IsSuccess)
-            return BadRequest();
-
-        return Ok();
-    }
+    // [HttpPost("test")]
+    // public async Task<IActionResult> SendEmail(SendEmailDto dto, CancellationToken token)
+    // {
+    //     var result = await _emailSenderService.SendEmailAsync(dto, token);
+    //
+    //     if (!result.IsSuccess)
+    //         return BadRequest();
+    //
+    //     return Ok();
+    // }
 
     [HttpPost("start-email-auth")]
     public async Task<IActionResult> StartEmailAuthentication([FromBody] StartEmailAuthDto dto,

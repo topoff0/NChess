@@ -64,7 +64,7 @@ public static class DependencyInjection
                                                         IConfiguration configuration)
     {
 
-        var _connectionString = configuration.GetConnectionString("UserServiceConnection")
+        var _connectionString = configuration.GetConnectionString("ChessAccountConnection")
             ?? throw new InvalidOperationException("Connection string 'UserServiceConnection' is not configured.");
 
         services.AddDbContext<UsersDbContext>(options =>
