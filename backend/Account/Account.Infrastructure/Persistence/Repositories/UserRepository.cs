@@ -33,9 +33,9 @@ public class UserRepository(UsersDbContext context) : IUserRepository
         return await _context.Users.FindAsync([id], token);
     }
 
-    public async Task<bool> IsExistsByEmail(string email, CancellationToken token = default)
+    public async Task<bool> IsExistsAndActiveByEmail(string email, CancellationToken token = default)
     {
-        return await _context.Users.AnyAsync(u => u.Email == email, token);
+        return await _context.Users.AnyAsync(u => u.Email == email && u.Status == UserStatus.Active, token);
     }
 
     public void Update(User entity)

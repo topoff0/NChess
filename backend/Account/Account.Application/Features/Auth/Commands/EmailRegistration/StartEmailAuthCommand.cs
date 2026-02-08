@@ -12,28 +12,29 @@ using MediatR;
 namespace Account.Application.Features.Auth.Commands.EmailRegistration;
 
 public record StartEmailAuthCommand(StartEmailAuthDto Dto)
-    : IRequest<ResultT<IsUserExistsResult>>;
+    : IRequest<ResultT<IsUserExistsAndActiveResult>>;
 
 public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
                                                  IEmailVerificationCodeRepository codeRepository,
                                                  IUnitOfWork unitOfWork,
                                                  IEmailSenderService emailService)
-    : IRequestHandler<StartEmailAuthCommand, ResultT<IsUserExistsResult>>
+    : IRequestHandler<StartEmailAuthCommand, ResultT<IsUserExistsAndActiveResult>>
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IEmailVerificationCodeRepository _codeRepository = codeRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IEmailSenderService _emailService = emailService;
 
-    public async Task<ResultT<IsUserExistsResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
+    public async Task<ResultT<IsUserExistsAndActiveResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
     {
         if (string.IsNullOrEmpty(request.Dto.Email)) //TODO: Implement real email validation
             return Error.Validation(ErrorCodes.InvalidEmail, ErrorMessages.InvalidEmail);
 
-        bool isPlayerExists = await _userRepository.IsExistsByEmail(request.Dto.Email, token);
-        if (isPlayerExists)
-            return new IsUserExistsResult(IsExists: true);
-
+        bool isExistsAndActive = await _userRepository.IsExistsAndActiveByEmail(request.Dto.Email, token);
+        if (isExistsAndActive)
+        {
+            return ResultT<IsUserExistsAndActiveResult>.Success(new(true, true));
+        }
 
         string verificationCode = GenerateCode();
         var sendRequest = new SendEmailDto
@@ -54,7 +55,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
 
         await _unitOfWork.SaveChangesAsync(token);
 
-        return new IsUserExistsResult(IsExists: false);
+        return ResultT<IsUserExistsAndActiveResult>.Success(new(false, false));
     }
 
     private static string GenerateCode()
