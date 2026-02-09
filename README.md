@@ -30,3 +30,6 @@ This is a web-based chess game built with .NET for the backend and React for the
 - **Bitboards**: [More on Bitboards](https://www.chessprogramming.org/Bitboards).
 - **Knight Moves**: [Learn More about Knight's Move Patterns](https://www.chessprogramming.org/Knight_Pattern). Addition: [OneStepOnly](https://www.chessprogramming.org/General_Setwise_Operations#OneStepOnly)
 - **FEN (Forsyth-Edwards Notation)**: [More about FEN](https://ru.wikipedia.org/wiki/).
+
+## Contributing
+There are many comments in the project marked 'TODO' and you could add them. I would really appreciate it!😉
