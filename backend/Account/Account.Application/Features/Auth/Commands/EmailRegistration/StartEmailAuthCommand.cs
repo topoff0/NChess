@@ -7,6 +7,7 @@ using Account.Application.Features.Auth.DTOs.Results;
 using Account.Core.Entities;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
+using Account.Core.Security;
 using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.EmailRegistration;
@@ -17,13 +18,15 @@ public record StartEmailAuthCommand(StartEmailAuthDto Dto)
 public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
                                                  IEmailVerificationCodeRepository codeRepository,
                                                  IUnitOfWork unitOfWork,
-                                                 IEmailSenderService emailService)
+                                                 IEmailSenderService emailService,
+                                                 IVerificationCodeHasher codeHasher)
     : IRequestHandler<StartEmailAuthCommand, ResultT<IsUserExistsAndActiveResult>>
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IEmailVerificationCodeRepository _codeRepository = codeRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IEmailSenderService _emailService = emailService;
+    private readonly IVerificationCodeHasher _codeHasher = codeHasher;
 
     public async Task<ResultT<IsUserExistsAndActiveResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
     {
@@ -50,7 +53,8 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
         );
         await _emailService.SendEmailAsync(sendRequest, token);
 
-        await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, verificationCode), token);
+        var hashedCode = _codeHasher.Hash(verificationCode);
+        await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, hashedCode), token);
         await _userRepository.AddAsync(User.CreatePending(request.Dto.Email, AuthProvider.Email), token);
 
         await _unitOfWork.SaveChangesAsync(token);

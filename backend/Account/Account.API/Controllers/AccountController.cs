@@ -1,5 +1,3 @@
-using Account.Application.Common.Interfaces;
-using Account.Application.DTOs.Requests.EmailSender;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailRegistration;
 using Account.Application.Features.Auth.Commands.Login;
@@ -12,23 +10,11 @@ namespace Account.API.Controllers;
 
 [ApiController]
 [Route("api/Account")]
-public class AccountController(IEmailSenderService emailSenderService,
-                               IMediator mediator)
+public class AccountController(IMediator mediator)
     : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
-    private readonly IEmailSenderService _emailSenderService = emailSenderService;
 
-    // [HttpPost("test")]
-    // public async Task<IActionResult> SendEmail(SendEmailDto dto, CancellationToken token)
-    // {
-    //     var result = await _emailSenderService.SendEmailAsync(dto, token);
-    //
-    //     if (!result.IsSuccess)
-    //         return BadRequest();
-    //
-    //     return Ok();
-    // }
 
     [HttpPost("start-email-auth")]
     public async Task<IActionResult> StartEmailAuthentication([FromBody] StartEmailAuthDto dto,

@@ -28,7 +28,8 @@ public class EmailVerificationCode
             IsManuallyDeactivated = false
         };
 
-    public void Deactivate()
+
+    public void DeactivateManually()
     {
         if (!IsManuallyDeactivated)
         {
