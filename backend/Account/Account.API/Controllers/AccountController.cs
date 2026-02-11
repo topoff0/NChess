@@ -16,6 +16,11 @@ public class AccountController(IMediator mediator)
     private readonly IMediator _mediator = mediator;
 
 
+    [HttpGet("health")]
+    public async Task<IActionResult> CheckHealth()
+    {
+        return Ok(new { status="health", timestamp = DateTime.UtcNow });
+    }
     [HttpPost("start-email-auth")]
     public async Task<IActionResult> StartEmailAuthentication([FromBody] StartEmailAuthDto dto,
                                                             CancellationToken token)
