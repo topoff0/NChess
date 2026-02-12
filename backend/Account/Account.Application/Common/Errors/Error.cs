@@ -1,4 +1,4 @@
-﻿namespace Account.Application.DTOs.Errors;
+﻿namespace Account.Application.Common.Errors;
 
 public enum ErrorType
 {

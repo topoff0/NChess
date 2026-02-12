@@ -1,6 +1,6 @@
-﻿using Account.Application.DTOs.Errors;
+﻿using Account.Application.Common.Errors;
 
-namespace Account.Application.DTOs.Results.Common;
+namespace Account.Application.Common.Results;
 
 public sealed class ResultT<TValue> : Result
 {

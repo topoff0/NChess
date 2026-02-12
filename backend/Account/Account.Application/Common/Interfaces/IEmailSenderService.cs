@@ -1,9 +1,8 @@
-﻿using Account.Application.DTOs.Requests.EmailSender;
-using Account.Application.DTOs.Results.Common;
+﻿using Account.Application.Common.Results;
 
 namespace Account.Application.Common.Interfaces;
 
 public interface IEmailSenderService
 {
-    Task<Result> SendEmailAsync(SendEmailDto dto, CancellationToken token);
+    Task<Result> SendEmailAsync(string recipient, string subject, string body, CancellationToken token = default);
 }

@@ -1,7 +1,6 @@
-﻿using Account.Application.DTOs.Errors;
-using Account.Application.DTOs.Results.Common;
-using Account.Application.Features.Auth.DTOs.Requests;
-using Account.Application.Features.Auth.DTOs.Results;
+﻿using Account.Application.Common.Errors;
+using Account.Application.Common.Results;
+using Account.Application.Features.Auth.Results;
 using Account.Core.Entities;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
@@ -10,7 +9,7 @@ using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.CreateProfile;
 
-public record CreateProfileCommand(CreateProfileDto Dto)
+public record CreateProfileCommand()
     : IRequest<ResultT<CreateProfileResult>>;
 
 public sealed class CreateProfileCommandHandler(IUserRepository userRepository,

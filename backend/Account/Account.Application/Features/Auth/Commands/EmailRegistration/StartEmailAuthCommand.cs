@@ -1,9 +1,10 @@
-﻿using Account.Application.Common.Interfaces;
+﻿using Account.Application.Common.Errors;
+using Account.Application.Common.Errors;
+using Account.Application.Common.Results;
 using Account.Application.DTOs.Errors;
 using Account.Application.DTOs.Requests.EmailSender;
-using Account.Application.DTOs.Results.Common;
 using Account.Application.Features.Auth.DTOs.Requests;
-using Account.Application.Features.Auth.DTOs.Results;
+using Account.Application.Features.Auth.Results;
 using Account.Core.Entities;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;

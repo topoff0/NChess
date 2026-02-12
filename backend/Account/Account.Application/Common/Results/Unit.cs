@@ -1,4 +1,4 @@
-﻿namespace Account.Application.DTOs.Results;
+﻿namespace Account.Application.Common.Results;
 
 public readonly struct Unit
 {

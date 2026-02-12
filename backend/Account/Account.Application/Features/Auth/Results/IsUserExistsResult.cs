@@ -1,3 +1,3 @@
-﻿namespace Account.Application.Features.Auth.DTOs.Results;
+﻿namespace Account.Application.Features.Auth.Results;
 
 public record IsUserExistsAndActiveResult(bool IsExists, bool IsActive);
