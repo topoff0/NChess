@@ -1,3 +1,3 @@
-﻿namespace Account.Application.Features.Auth.DTOs.Requests;
+﻿namespace Account.API.DTOs;
 
 public record VerifyEmailDto(string Email, string VerificationCode);

@@ -1,4 +1,4 @@
-﻿namespace Account.API;
+﻿namespace Account.API.DTOs;
 
 public record class CreateProfileFormDto
 {

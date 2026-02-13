@@ -1,4 +1,4 @@
-﻿namespace Account.Application.Features.Auth.DTOs.Requests;
+﻿namespace Account.API.DTOs;
 
 
 public record CreateProfileDto(byte[] ProfileImage,

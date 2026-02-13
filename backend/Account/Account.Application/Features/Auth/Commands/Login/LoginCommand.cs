@@ -1,7 +1,5 @@
-﻿using Account.Application.Commonon.Errors;
+﻿using Account.Application.Common.Errors;
 using Account.Application.Common.Results;
-using Account.Application.DTOs.Errors;
-using Account.Application.Features.Auth.DTOs.Requests;
 using Account.Application.Features.Auth.Results;
 using Account.Core.Entities;
 using Account.Core.Repositories;
@@ -11,7 +9,7 @@ using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.Login;
 
-public record LoginCommand(LoginDto Dto)
+public record LoginCommand(string Email, string Password)
     : IRequest<ResultT<LoginResult>>;
 
 public sealed class LoginCommandHandler(IUserRepository userRepository,
@@ -25,17 +23,17 @@ public sealed class LoginCommandHandler(IUserRepository userRepository,
 
     public async Task<ResultT<LoginResult>> Handle(LoginCommand request, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(request.Dto.Email))
+        if (string.IsNullOrEmpty(request.Email))
             return Error.Validation(ErrorCodes.InvalidEmail, ErrorMessages.InvalidEmail);
 
-        var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
+        var user = await _userRepository.GetByEmailAsync(request.Email, token);
         if (user is null)
             return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
         if (user.Status != UserStatus.Active)
             return Error.Conflict(ErrorCodes.AccountNotActivated, ErrorCodes.AccountNotActivated);
 
-        if (!_passwordHasher.Verify(request.Dto.Password, user.PasswordHash))
+        if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
             return Error.Failure(ErrorCodes.IncorrectPassword, ErrorMessages.IncorrectPassword);
 
         user.UpdateLastLoginTime();

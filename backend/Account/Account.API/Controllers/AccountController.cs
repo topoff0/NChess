@@ -1,7 +1,7 @@
+using Account.API.DTOs;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailRegistration;
 using Account.Application.Features.Auth.Commands.Login;
-using Account.Application.Features.Auth.DTOs.Requests;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +25,7 @@ public class AccountController(IMediator mediator)
     public async Task<IActionResult> StartEmailAuthentication([FromBody] StartEmailAuthDto dto,
                                                             CancellationToken token)
     {
-        var command = new StartEmailAuthCommand(dto);
+        var command = new StartEmailAuthCommand(dto.Email);
         var result = await _mediator.Send(command, token);
 
         if (!result.IsSuccess)
@@ -40,7 +40,7 @@ public class AccountController(IMediator mediator)
     public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto dto,
                                                  CancellationToken token)
     {
-        var command = new VerifyEmailCommand(dto);
+        var command = new VerifyEmailCommand(dto.Email, dto.VerificationCode);
         var result = await _mediator.Send(command, token);
 
         if(!result.IsSuccess)
@@ -53,7 +53,7 @@ public class AccountController(IMediator mediator)
     public async Task<IActionResult> Login([FromBody] LoginDto dto,
                                            CancellationToken token)
     {
-        var command = new LoginCommand(dto);
+        var command = new LoginCommand(dto.Email, dto.Password);
         var result = await _mediator.Send(command, token);
 
         if(!result.IsSuccess)
@@ -66,7 +66,11 @@ public class AccountController(IMediator mediator)
     public async Task<IActionResult> CreateProfile([FromBody] CreateProfileDto dto,
                                                    CancellationToken token)
     {
-        var command = new CreateProfileCommand(dto);
+        var command = new CreateProfileCommand(dto.ProfileImage,
+                                               dto.Email,
+                                               dto.Username,
+                                               dto.Password,
+                                               dto.ConfirmPassword);
         var result = await _mediator.Send(command, token);
 
         if(!result.IsSuccess)

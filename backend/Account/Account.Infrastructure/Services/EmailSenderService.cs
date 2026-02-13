@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using Account.Application.Common.Configurations;
+using Account.Application.Common.DTOs;
 using Account.Application.Common.Interfaces;
 using Account.Application.Common.Results;
 using Microsoft.Extensions.Options;
@@ -12,18 +13,18 @@ public class EmailSenderService(IOptions<EmailOptions> emailOptions) : IEmailSen
 {
     private readonly EmailOptions _emailOptions = emailOptions.Value;
 
-    public async Task<Result> SendEmailAsync(string recipient, string subject, string body, CancellationToken token = default)
+    public async Task<Result> SendEmailAsync(SendEmailDto dto, CancellationToken token = default)
     {
         //TODO: Add try-catch with logger
         MailMessage mailMessage = new()
         {
             From = new MailAddress(_emailOptions.Email, "Pixel Chess"),
-            Subject = subject,
+            Subject = dto.Subject,
             IsBodyHtml = true,
-            Body = body
+            Body = dto.Body
         };
 
-        mailMessage.To.Add(recipient);
+        mailMessage.To.Add(dto.Recipient);
 
         using var smtpClient = new SmtpClient();
         smtpClient.Host = _emailOptions.Host;

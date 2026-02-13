@@ -1,9 +1,7 @@
-﻿using Account.Application.Common.Errors;
+﻿using Account.Application.Common.DTOs;
 using Account.Application.Common.Errors;
+using Account.Application.Common.Interfaces;
 using Account.Application.Common.Results;
-using Account.Application.DTOs.Errors;
-using Account.Application.DTOs.Requests.EmailSender;
-using Account.Application.Features.Auth.DTOs.Requests;
 using Account.Application.Features.Auth.Results;
 using Account.Core.Entities;
 using Account.Core.Repositories;
@@ -13,7 +11,7 @@ using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.EmailRegistration;
 
-public record StartEmailAuthCommand(StartEmailAuthDto Dto)
+public record StartEmailAuthCommand(string Email)
     : IRequest<ResultT<IsUserExistsAndActiveResult>>;
 
 public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
@@ -31,13 +29,13 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
 
     public async Task<ResultT<IsUserExistsAndActiveResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(request.Dto.Email)) //TODO: Implement real email validation
+        if (string.IsNullOrEmpty(request.Email)) //TODO: Implement real email validation
             return Error.Validation(ErrorCodes.InvalidEmail, ErrorMessages.InvalidEmail);
 
-        bool isExists = await _userRepository.IsExistsByEmailAsync(request.Dto.Email, token);
+        bool isExists = await _userRepository.IsExistsByEmailAsync(request.Email, token);
         if (isExists)
         {
-            bool isActive = await _userRepository.IsActiveByEmailAsync(request.Dto.Email, token);
+            bool isActive = await _userRepository.IsActiveByEmailAsync(request.Email, token);
             if (isActive)
                 return ResultT<IsUserExistsAndActiveResult>.Success(new(true, true));
         }
@@ -45,7 +43,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
         string verificationCode = GenerateCode();
         var sendRequest = new SendEmailDto
         (
-            Recipient: request.Dto.Email,
+            Recipient: request.Email,
             Subject: "Pixel Chess",
             Body: $"""
                 <h1>Email Verification</h1>
@@ -57,10 +55,10 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
         await _emailService.SendEmailAsync(sendRequest, token);
 
         var hashedCode = _codeHasher.Hash(verificationCode);
-        await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Dto.Email, hashedCode), token);
+        await _codeRepository.AddAsync(EmailVerificationCode.Create(request.Email, hashedCode), token);
 
         if (isExists)
-            await _userRepository.AddAsync(User.CreatePending(request.Dto.Email, AuthProvider.Email), token);
+            await _userRepository.AddAsync(User.CreatePending(request.Email, AuthProvider.Email), token);
 
         await _unitOfWork.SaveChangesAsync(token);
 

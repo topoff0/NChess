@@ -9,7 +9,11 @@ using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.CreateProfile;
 
-public record CreateProfileCommand()
+public record CreateProfileCommand(byte[] ProfileImage,
+                                   string Email,
+                                   string Username,
+                                   string Password,
+                                   string ConfirmPassword)
     : IRequest<ResultT<CreateProfileResult>>;
 
 public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
@@ -27,12 +31,12 @@ public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
     {
         //TODO: Validaation check
 
-        var user = await _userRepository.GetByEmailAsync(request.Dto.Email, token);
+        var user = await _userRepository.GetByEmailAsync(request.Email, token);
         if (user is null)
             return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
-        var hashedPassword = _passwordHasher.Hash(request.Dto.Password);
-        user.SetUser(request.Dto.Username, hashedPassword, "image/path"); // TODO: Create ImageService to handle images operations
+        var hashedPassword = _passwordHasher.Hash(request.Password);
+        user.SetUser(request.Username, hashedPassword, "image/path"); // TODO: Create ImageService to handle images operations
 
         var player = Player.Create(user.Id);
         await _playerRepository.AddAsync(player, token);
