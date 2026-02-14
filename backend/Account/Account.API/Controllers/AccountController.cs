@@ -64,10 +64,18 @@ public class AccountController(IMediator mediator)
     }
 
     [HttpPost("create-profile")]
-    public async Task<IActionResult> CreateProfile(CreateProfileDto dto,
+    public async Task<IActionResult> CreateProfile([FromForm] CreateProfileDto dto,
                                                    CancellationToken token)
     {
-        var command = new CreateProfileCommand(dto.ProfileImage,
+        byte[]? imageBytes = null;
+        if (dto.ProfileImage is not null)
+        {
+            using var ms = new MemoryStream();
+            await dto.ProfileImage.CopyToAsync(ms, token);
+            imageBytes = ms.ToArray();
+        }
+
+        var command = new CreateProfileCommand(imageBytes,
                                                dto.Email,
                                                dto.Username,
                                                dto.Password,

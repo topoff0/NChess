@@ -1,7 +1,7 @@
 ﻿namespace Account.API.DTOs;
 
 
-public record CreateProfileDto(byte[] ProfileImage,
+public record CreateProfileDto(IFormFile? ProfileImage,
                                string Email,
                                string Username,
                                string Password,

@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Account.Application.Features.Auth.Commands.CreateProfile;
 
-public record CreateProfileCommand(byte[] ProfileImage,
+public record CreateProfileCommand(byte[]? ProfileImage,
                                    string Email,
                                    string Username,
                                    string Password,
