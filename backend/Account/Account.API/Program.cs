@@ -1,5 +1,6 @@
 using Account.API.Extensions;
 using Account.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,9 +17,15 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddMyCors();
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // ======================= APP ======================= 
 var app = builder.Build();
+
+app.UseGlobalExceptionHandler();
 
 await app.Services.ApplyMigrationAsync();
 

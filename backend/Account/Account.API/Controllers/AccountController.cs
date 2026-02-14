@@ -1,4 +1,5 @@
 using Account.API.DTOs;
+using Account.Application.Common.Errors;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailRegistration;
 using Account.Application.Features.Auth.Commands.Login;
@@ -22,8 +23,8 @@ public class AccountController(IMediator mediator)
         return Ok(new { status="health", timestamp = DateTime.UtcNow });
     }
     [HttpPost("start-email-auth")]
-    public async Task<IActionResult> StartEmailAuthentication([FromBody] StartEmailAuthDto dto,
-                                                            CancellationToken token)
+    public async Task<IActionResult> StartEmailAuthentication(StartEmailAuthDto dto,
+                                                              CancellationToken token)
     {
         var command = new StartEmailAuthCommand(dto.Email);
         var result = await _mediator.Send(command, token);
@@ -37,7 +38,7 @@ public class AccountController(IMediator mediator)
     }
 
     [HttpPost("verify-email")]
-    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto dto,
+    public async Task<IActionResult> VerifyEmail(VerifyEmailDto dto,
                                                  CancellationToken token)
     {
         var command = new VerifyEmailCommand(dto.Email, dto.VerificationCode);
@@ -50,7 +51,7 @@ public class AccountController(IMediator mediator)
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto,
+    public async Task<IActionResult> Login(LoginDto dto,
                                            CancellationToken token)
     {
         var command = new LoginCommand(dto.Email, dto.Password);
@@ -63,7 +64,7 @@ public class AccountController(IMediator mediator)
     }
 
     [HttpPost("create-profile")]
-    public async Task<IActionResult> CreateProfile([FromBody] CreateProfileDto dto,
+    public async Task<IActionResult> CreateProfile(CreateProfileDto dto,
                                                    CancellationToken token)
     {
         var command = new CreateProfileCommand(dto.ProfileImage,

@@ -12,6 +12,7 @@ public static class ErrorCodes
     public const string TokenExpired = "auth.token_expired";
 
     // Validation errors
+    public const string ModelStateValidationFailed = "model_state_validation.failed";
     public const string ValidationFailed = "validation.failed";
     public const string UsernameAlreadyExists = "validation.username_exists";
 
@@ -30,5 +31,6 @@ public static class ErrorMessages
     public const string AccountNotActivated = "User is not activated";
 
     // Validation messages
+    public const string ModelStateValidationFailed = "Invalid request data format";
     public const string UsernameAlreadyExists = "Username is already taken";
 }
