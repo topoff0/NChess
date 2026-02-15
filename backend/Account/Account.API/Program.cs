@@ -3,8 +3,10 @@ using Account.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-DotNetEnv.Env.TraversePath().Load();
 
+var envFile = ".env.dev";
+
+DotNetEnv.Env.TraversePath().Load(envFile);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllersWithFilters();

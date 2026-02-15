@@ -29,6 +29,8 @@ build/
 dist/
 ## Environment variables
 .env
+.env.prod
+.env.dev
 
 # OS-specific files
 ## Windows
