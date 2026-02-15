@@ -1,5 +1,4 @@
 using Account.API.DTOs;
-using Account.Application.Common.Errors;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailRegistration;
 using Account.Application.Features.Auth.Commands.Login;

@@ -1,7 +1,5 @@
 using Account.API.Extensions;
 using Account.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,19 +11,18 @@ builder.Services.AddControllersWithFilters();
 
 builder.Services.AddOpenApi();
 
+builder.Services.AddMySwagger();
+
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddMyCors();
-
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
 
 // ======================= APP ======================= 
 var app = builder.Build();
 
 app.UseGlobalExceptionHandler();
+
+app.UseMySwagger(app.Environment);
 
 await app.Services.ApplyMigrationAsync();
 
@@ -35,11 +32,6 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
 
 app.MapControllers();
 
