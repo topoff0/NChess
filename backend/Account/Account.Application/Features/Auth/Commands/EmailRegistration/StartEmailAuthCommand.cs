@@ -44,7 +44,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
         var sendRequest = new SendEmailDto
         (
             Recipient: request.Email,
-            Subject: "Pixel Chess",
+            Subject: "Verification Code",
             Body: $"""
                 <h1>Email Verification</h1>
                 <p>Your verification code is: <strong>{verificationCode}</strong></p>

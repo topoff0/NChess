@@ -12,13 +12,14 @@ namespace Account.Infrastructure.Services;
 public class EmailSenderService(IOptions<EmailOptions> emailOptions) : IEmailSenderService
 {
     private readonly EmailOptions _emailOptions = emailOptions.Value;
+    private const string _displayName = "Pixel Chess";
 
     public async Task<Result> SendEmailAsync(SendEmailDto dto, CancellationToken token = default)
     {
         //TODO: Add try-catch with logger
         MailMessage mailMessage = new()
         {
-            From = new MailAddress(_emailOptions.Email, "Pixel Chess"),
+            From = new MailAddress(_emailOptions.Email, _displayName),
             Subject = dto.Subject,
             IsBodyHtml = true,
             Body = dto.Body
