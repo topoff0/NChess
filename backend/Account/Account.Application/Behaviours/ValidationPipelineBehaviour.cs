@@ -17,7 +17,7 @@ public sealed class ValidationPipelineBehaviour<TRequest, TValue>(IEnumerable<IV
     {
         if (!_validators.Any())
         {
-            return await next(token);
+            return await next();
         }
 
         var context = new ValidationContext<TRequest>(request);
@@ -32,7 +32,7 @@ public sealed class ValidationPipelineBehaviour<TRequest, TValue>(IEnumerable<IV
 
         if (failures.Count == 0)
         {
-            return await next(token);
+            return await next();
         }
 
         var errorsDictionary = failures
