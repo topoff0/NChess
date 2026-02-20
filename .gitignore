@@ -29,6 +29,8 @@ build/
 dist/
 ## Environment variables
 .env
+dev.env
+prod.env
 .env.prod
 .env.dev
 

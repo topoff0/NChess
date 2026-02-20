@@ -4,7 +4,7 @@ using Account.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 
-var envFile = ".env.dev";
+var envFile = "dev.env";
 
 DotNetEnv.Env.TraversePath().Load(envFile);
 builder.Configuration.AddEnvironmentVariables();
