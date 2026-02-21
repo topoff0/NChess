@@ -39,8 +39,8 @@ public class Error
     public static Error NotFound(string code, string description) =>
         new(code, description, ErrorType.NotFound);
 
-    public static Error Validation(string code, Dictionary<string, string[]> validationErrors) =>
-        new(code, "One or more validation errors occurred", ErrorType.Validation, validationErrors);
+    public static Error Validation(Dictionary<string, string[]> validationErrors) =>
+        new(ErrorCodes.GeneralValidation, "One or more validation errors occurred", ErrorType.Validation, validationErrors);
 
     public static Error Conflict(string code, string description) =>
         new(code, description, ErrorType.Conflict);

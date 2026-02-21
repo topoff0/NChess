@@ -28,13 +28,22 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
         if (user is null)
             return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
-        var codeEntity = await _codeRepository.GetActiveByEmailAsync(request.Email, token);
+        var codeEntity = await _codeRepository.GetNotExpiredByEmailAsync(request.Email, token);
         if (codeEntity is null)
             return Error.NotFound(ErrorCodes.VerificationCodeNotFound, ErrorMessages.VerificationCodeNotFound);
 
+        if (codeEntity.IsUsed)
+            return Error.Failure(ErrorCodes.VerificationCodeAlreadyUsed, ErrorMessages.VerficaitonCodeAlreadyUsed);
+
         bool isCodeCorrect = _codeHasher.Verify(request.VerificationCode, codeEntity.HashedCode);
-        if(!isCodeCorrect)
-            return new VerifyEmailResult(IsCodeCorrect: false); 
+        if (!isCodeCorrect)
+            return Error.Validation(new Dictionary<string, string[]>
+                {
+                    {
+                        ErrorCodes.InvalidVerificationCode,
+                        new[] { ErrorMessages.InvalidVerificationCode }
+                    }
+                });
 
         codeEntity.UseCode();
 
@@ -42,6 +51,6 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
 
         //TODO: return JWT token
 
-        return new VerifyEmailResult(IsCodeCorrect: true); 
+        return new VerifyEmailResult(IsCodeCorrect: true);
     }
 }

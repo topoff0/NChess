@@ -18,10 +18,11 @@ public class EmailVerificationRepository(UsersDbContext context) : IEmailVerific
         _context.EmailVerificationCodes.Remove(entity);
     }
 
-    public async Task<EmailVerificationCode?> GetActiveByEmailAsync(string email, CancellationToken token)
+    public async Task<EmailVerificationCode?> GetNotExpiredByEmailAsync(string email, CancellationToken token)
     {
         return await _context.EmailVerificationCodes.FirstOrDefaultAsync(
-                c => c.Email == email && c.ExpiryAt > DateTime.UtcNow, token);
+                c => c.Email == email
+                     && c.ExpiryAt > DateTime.UtcNow, token);
     }
 
     public async Task<IEnumerable<EmailVerificationCode>> GetAllAsync(CancellationToken token = default)

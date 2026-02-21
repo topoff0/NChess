@@ -4,7 +4,6 @@ using FluentValidation;
 using MediatR;
 
 namespace Account.Application.Behaviours;
-
 public sealed class ValidationPipelineBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
@@ -36,12 +35,12 @@ public sealed class ValidationPipelineBehaviour<TRequest, TResponse>(IEnumerable
         }
 
         var errorsDictionary = failures
-            .GroupBy(f => f.PropertyName)
+            .GroupBy(f => f.PropertyName.ToLower())
             .ToDictionary(
                 g => g.Key,
                 g => g.Select(f => f.ErrorMessage).ToArray());
 
-        var error = Error.Validation(ErrorCodes.GeneralValidation, errorsDictionary);
+        var error = Error.Validation(errorsDictionary);
 
         throw new CustomValidationException(error);
     }

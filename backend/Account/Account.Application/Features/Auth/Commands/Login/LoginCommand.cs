@@ -31,7 +31,13 @@ public sealed class LoginCommandHandler(IUserRepository userRepository,
             return Error.Conflict(ErrorCodes.AccountNotActivated, ErrorCodes.AccountNotActivated);
 
         if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
-            return Error.Failure(ErrorCodes.IncorrectPassword, ErrorMessages.IncorrectPassword);
+            return Error.Validation(new Dictionary<string, string[]>
+                {
+                    {
+                        ErrorCodes.InvalidPassword,
+                        new[] { ErrorMessages.InvalidPassword }
+                    }
+                });
 
         user.UpdateLastLoginTime();
 
