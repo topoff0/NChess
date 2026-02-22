@@ -15,7 +15,7 @@ public static class ErrorCodes
     public const string VerificationCodeAlreadyUsed = "auth.verification_code_already_used";
 
     // Validation errors
-    public const string GeneralValidation = "validation.validation_error";
+    public const string GeneralValidation = "validation_error";
     public const string ModelStateValidationFailed = "model_state_validation.failed";
 
     // System errors

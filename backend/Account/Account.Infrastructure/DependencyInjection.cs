@@ -147,7 +147,6 @@ public static class DependencyInjection
     private static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddValidatorsFromAssemblyContaining<StartEmailAuthCommandValidator>();
-        services.AddValidatorsFromAssemblyContaining<CreateProfileCommand>();
 
         return services;
     }
