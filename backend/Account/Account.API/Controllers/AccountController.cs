@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using Account.API.DTOs;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailAuthentication;
 using Account.Application.Features.Auth.Commands.Login;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -61,7 +63,8 @@ public class AccountController(IMediator mediator)
 
         return Ok(result.Value);
     }
-
+    
+    [Authorize]
     [HttpPost("create-profile")]
     public async Task<IActionResult> CreateProfile([FromForm] CreateProfileDto dto,
                                                    CancellationToken token)
@@ -74,8 +77,12 @@ public class AccountController(IMediator mediator)
             imageBytes = ms.ToArray();
         }
 
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        if (email is null)
+            return Unauthorized();
+
         var command = new CreateProfileCommand(imageBytes,
-                                               dto.Email,
+                                               email,
                                                dto.Username,
                                                dto.Password,
                                                dto.ConfirmPassword);
