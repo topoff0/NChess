@@ -1,4 +1,5 @@
 ﻿using Account.Application.Common.Errors;
+using Account.Application.Common.Interfaces;
 using Account.Application.Common.Results;
 using Account.Application.Features.Auth.Results;
 using Account.Application.Logger.Auth;
@@ -17,6 +18,7 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
                                                IEmailVerificationCodeRepository codeRepository,
                                                IUnitOfWork unitOfWork,
                                                IVerificationCodeHasher codeHasher,
+                                               IJwtTokenService jwtService,
                                                ILogger<VerifyEmailCommandHandler> logger)
     : IRequestHandler<VerifyEmailCommand, ResultT<VerifyEmailResult>>
 {
@@ -24,6 +26,7 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
     private readonly IEmailVerificationCodeRepository _codeRepository = codeRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IVerificationCodeHasher _codeHasher = codeHasher;
+    private readonly IJwtTokenService _jwtService = jwtService;
     private readonly ILogger<VerifyEmailCommandHandler> _logger = logger;
 
     public async Task<ResultT<VerifyEmailResult>> Handle(VerifyEmailCommand request, CancellationToken token)
@@ -68,10 +71,10 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
 
         await _unitOfWork.SaveChangesAsync(token);
 
-        //TODO: return JWT token
-        
+        var jwtToken = _jwtService.GenerateAccessToken(user.Id, user.Email);
+
         _logger.LogSuccessfulEmailVerification(request.VerificationCode, request.Email);
 
-        return new VerifyEmailResult(IsCodeCorrect: true);
+        return new VerifyEmailResult(jwtToken);
     }
 }

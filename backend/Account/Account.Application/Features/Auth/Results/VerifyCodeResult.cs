@@ -1,3 +1,3 @@
 ﻿namespace Account.Application.Features.Auth.Results;
 
-public record VerifyEmailResult(bool IsCodeCorrect);
+public record VerifyEmailResult(string JwtToken);
