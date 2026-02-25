@@ -1,7 +1,7 @@
 ﻿using Account.Application.Common.Results;
 using Account.Application.DTOs;
 
-namespace Account.Application.Common.Interfaces;
+namespace Account.Application.Interfaces;
 
 public interface IEmailSenderService
 {

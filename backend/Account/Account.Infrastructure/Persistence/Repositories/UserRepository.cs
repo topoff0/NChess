@@ -53,6 +53,11 @@ public class UserRepository(UsersDbContext context) : IUserRepository
         return await _context.Users.AnyAsync(u => u.Email == email, token);
     }
 
+    public async Task<bool> IsExistsByUsernameAsync(string username, CancellationToken token = default)
+    {
+        return await _context.Users.AnyAsync(u => u.Username == username, token);
+    }
+
     public void Update(User entity)
     {
         _context.Users.Update(entity);

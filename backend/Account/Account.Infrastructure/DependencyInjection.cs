@@ -1,9 +1,9 @@
 ﻿using Account.Application.Behaviours;
-using Account.Application.Common.Interfaces;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailAuthentication;
 using Account.Application.Features.Auth.Commands.Login;
 using Account.Application.Features.Auth.Validation;
+using Account.Application.Interfaces;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
 using Account.Core.Security;
@@ -119,8 +119,8 @@ public static class DependencyInjection
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-
         services.AddScoped<IEmailSenderService, EmailSenderService>();
+        services.AddScoped<IImageService, ImageService>();
 
         return services;
     }

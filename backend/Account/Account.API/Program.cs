@@ -26,6 +26,8 @@ app.UseGlobalExceptionHandler();
 
 app.UseMySwagger(app.Environment);
 
+app.UseStaticFiles();
+
 await app.Services.ApplyMigrationAsync();
 
 app.UseRouting();

@@ -1,7 +1,7 @@
 ﻿using Account.Core.Entities;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Account.Application.Common.Interfaces;
+namespace Account.Application.Interfaces;
 
 public interface IJwtTokenService
 {

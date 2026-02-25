@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Account.Application.Common.Configurations;
-using Account.Application.Common.Interfaces;
+using Account.Application.Interfaces;
 using Account.Core.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

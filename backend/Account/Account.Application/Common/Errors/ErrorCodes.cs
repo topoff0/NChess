@@ -14,6 +14,9 @@ public static class ErrorCodes
     public const string AccountNotActivated = "auth.account_not_activated";
     public const string VerificationCodeAlreadyUsed = "auth.verification_code_already_used";
 
+    public const string UsernameAlreadyExists = "auth.username_already_exists";
+    public const string ProfileAlreadyCreated = "auth.profile_already_created";
+
     // Validation errors
     public const string GeneralValidation = "validation_error";
     public const string ModelStateValidationFailed = "model_state_validation.failed";
@@ -40,7 +43,9 @@ public static class ErrorMessages
 
     // Validation messages
     public const string ModelStateValidationFailed = "Invalid request data format";
+
     public const string UsernameAlreadyExists = "Username is already taken";
+    public const string ProfileAlreadyCreated = "Profile has already been created";
 
     // System messages
     public const string InternalError = "An unexpected error occurred";

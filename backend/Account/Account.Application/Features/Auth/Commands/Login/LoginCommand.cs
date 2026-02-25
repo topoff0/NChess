@@ -1,7 +1,7 @@
 ﻿using Account.Application.Common.Errors;
-using Account.Application.Common.Interfaces;
 using Account.Application.Common.Results;
 using Account.Application.Features.Auth.Results;
+using Account.Application.Interfaces;
 using Account.Application.Logger.Auth;
 using Account.Core.Entities;
 using Account.Core.Repositories;

@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using Account.Application.Common.Configurations;
-using Account.Application.Common.Interfaces;
 using Account.Application.Common.Results;
 using Account.Application.DTOs;
+using Account.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using SmtpClient = System.Net.Mail.SmtpClient;
 
