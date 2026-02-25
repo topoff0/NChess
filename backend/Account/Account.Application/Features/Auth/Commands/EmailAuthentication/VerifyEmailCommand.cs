@@ -43,7 +43,7 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
         var codeEntity = await _codeRepository.GetNotExpiredByEmailAsync(request.Email, token);
         if (codeEntity is null)
         {
-            _logger.LogVerificationCodeForThisEmailNotFound(request.Email);
+            _logger.LogVerificationCodeForThisEmailNotFoundVerify(request.Email);
             return Error.NotFound(ErrorCodes.VerificationCodeNotFound, ErrorMessages.VerificationCodeNotFound);
         }
 

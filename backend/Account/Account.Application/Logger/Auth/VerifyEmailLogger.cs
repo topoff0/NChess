@@ -21,7 +21,7 @@ public static partial class VerifyEmailLogger
         EventId = 1102,
         Level = LogLevel.Warning,
         Message = "Verification code for email '{Email}' not found")]
-    public static partial void LogVerificationCodeForThisEmailNotFound(this ILogger logger, string email);
+    public static partial void LogVerificationCodeForThisEmailNotFoundVerify(this ILogger logger, string email);
 
     [LoggerMessage(
         EventId = 1103,

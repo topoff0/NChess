@@ -23,7 +23,7 @@ public static class ErrorCodes
     public const string ServiceUnavailable = "system.service_unavailable";
 
     // Unexpected errors
-    public const string StartEmailAuthUnexpectedError = "start_email_auth.unexpected_error";
+    public const string AuthUnexpectedError = "auth.unexpected_error";
 }
 
 public static class ErrorMessages
@@ -46,5 +46,5 @@ public static class ErrorMessages
     public const string InternalError = "An unexpected error occurred";
 
     // Unexpected messages
-    public const string UnexpectedError = "Something went wrong";
+    public const string AuthUnexpectedError = "Something went wrong";
 }
