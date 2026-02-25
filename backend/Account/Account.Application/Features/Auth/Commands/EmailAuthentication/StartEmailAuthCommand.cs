@@ -82,7 +82,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
         }
         catch (Exception ex)
         {
-            _logger.LogStartEmailAuthUnexpectedError(ex.Message);
+            _logger.LogUnexpectedErrorStartEmailAuth(ex.Message);
             return Error.Failure(ErrorCodes.AuthUnexpectedError,
                                  ErrorMessages.AuthUnexpectedError);
         }

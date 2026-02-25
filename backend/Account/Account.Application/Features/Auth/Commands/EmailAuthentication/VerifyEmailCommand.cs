@@ -36,7 +36,7 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
         var user = await _userRepository.GetByEmailAsync(request.Email, token);
         if (user is null)
         {
-            _logger.LogUserWithSuchEmailNotFound(request.Email);
+            _logger.LogUserWithSuchEmailNotFoundVerifyEmail(request.Email);
             return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
         }
 

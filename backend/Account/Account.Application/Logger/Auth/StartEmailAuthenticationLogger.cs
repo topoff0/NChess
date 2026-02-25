@@ -41,8 +41,8 @@ public static partial class StartEmailAuthenticationLogger
     public static partial void LogSuccessfulStartEmailAuth(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 1006,
-        Level = LogLevel.Error,
-        Message = "An unexpected error occurred while processing 'start email autheticaiton': {Exception}")]
-    public static partial void LogStartEmailAuthUnexpectedError(this ILogger logger, string exception);
+        EventId = 1099,
+        Level = LogLevel.Critical,
+        Message = "An unexpected error occurred while processing start email autheticaiton command: {Message}")]
+    public static partial void LogUnexpectedErrorStartEmailAuth(this ILogger logger, string message);
 }

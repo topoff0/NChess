@@ -14,7 +14,7 @@ public static partial class VerifyEmailLogger
         EventId = 1101,
         Level = LogLevel.Warning,
         Message = "User with email '{Email}' not found")]
-    public static partial void LogUserWithSuchEmailNotFound(this ILogger logger, string email);
+    public static partial void LogUserWithSuchEmailNotFoundVerifyEmail(this ILogger logger, string email);
 
 
     [LoggerMessage(
@@ -40,4 +40,10 @@ public static partial class VerifyEmailLogger
         Level = LogLevel.Information,
         Message = "Successful email verification; Email: '{Email}', Code: '{Code}'")]
     public static partial void LogSuccessfulEmailVerification(this ILogger logger, string code, string email);
+
+    [LoggerMessage(
+        EventId = 1199,
+        Level = LogLevel.Critical,
+        Message = "An unexpected error occurred while processing verify email command: {Message}")]
+    public static partial void LogUnexpectedErrorStartEmailAuth(this ILogger logger, string message);
 }

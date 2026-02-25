@@ -35,8 +35,8 @@ public static partial class LoginLogger
     public static partial void LogSuccessfulLogin(this ILogger logger, string email);
 
     [LoggerMessage(
-        EventId = 1205,
+        EventId = 1299,
         Level = LogLevel.Critical,
-        Message = "Unexpected login error: {Message}")]
+        Message = "An unexpected error occurred while processing login command: {Message}")]
     public static partial void LogUnexpectedErrorLogin(this ILogger logger, string message);
 }
