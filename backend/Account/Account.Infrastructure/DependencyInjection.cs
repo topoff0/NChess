@@ -17,6 +17,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Account.Infrastructure;
 
@@ -42,25 +43,29 @@ public static class DependencyInjection
         return services;
     }
 
-    //TODO: Add cancellationToken
     public static async Task ApplyMigrationAsync(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<UsersDbContext>>();
 
         try
         {
-            // TODO: Add logger
-            var pendingingMigraitons = await context.Database.GetPendingMigrationsAsync();
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
 
-            if (pendingingMigraitons.Any())
+            if (pendingMigrations.Any())
             {
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Applying {Count} pending migrations...", pendingMigrations.Count());
+                }
                 await context.Database.MigrateAsync();
+                logger.LogInformation("Database migrations applied successfully.");
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO: Add logger
+            logger.LogCritical(ex, "An error occurred while applying database migrations.");
             throw;
         }
     }

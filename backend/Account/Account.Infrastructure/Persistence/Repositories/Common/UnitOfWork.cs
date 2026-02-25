@@ -1,5 +1,4 @@
-﻿//TODO: add logger (maybe not in this class)
-using Account.Core.Repositories.Common;
+﻿using Account.Core.Repositories.Common;
 
 namespace Account.Infrastructure.Persistence.Repositories.Common;
 

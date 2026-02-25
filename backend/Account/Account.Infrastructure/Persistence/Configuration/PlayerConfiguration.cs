@@ -6,7 +6,6 @@ namespace Account.Infrastructure.Persistence.Configuration;
 
 public class PlayerConfiguration : IEntityTypeConfiguration<Player>
 {
-    //TODO: Create configuration for Player entity
     public void Configure(EntityTypeBuilder<Player> builder)
     {
         builder.ToTable("Players", "account");

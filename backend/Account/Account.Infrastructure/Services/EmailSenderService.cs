@@ -16,7 +16,6 @@ public class EmailSenderService(IOptions<EmailOptions> emailOptions) : IEmailSen
 
     public async Task<Result> SendEmailAsync(SendEmailDto dto, CancellationToken token = default)
     {
-        //TODO: Add try-catch with logger
         MailMessage mailMessage = new()
         {
             From = new MailAddress(_emailOptions.Email, _displayName),
