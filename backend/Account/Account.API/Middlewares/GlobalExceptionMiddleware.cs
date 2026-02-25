@@ -28,7 +28,7 @@ public sealed class GlobalExceptionMiddleware(RequestDelegate next,
 
     private async Task HandleCustomValidationException(HttpContext context, CustomValidationException exception)
     {
-        _logger.LogWarning(exception.Message, "Validation failed");
+        _logger.LogWarning(exception, "Validation failed");
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

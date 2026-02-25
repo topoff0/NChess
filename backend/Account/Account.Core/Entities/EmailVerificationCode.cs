@@ -11,7 +11,7 @@ public sealed class EmailVerificationCode
     public bool IsUsed { get; private set; }
     public bool IsManuallyDeactivated { get; private set; }
 
-    public bool IsExpired => CreatedAt >= ExpiryAt;
+    public bool IsExpired => DateTime.UtcNow >= ExpiryAt;
     public bool IsActive => !IsExpired;
 
 
