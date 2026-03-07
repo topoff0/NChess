@@ -19,3 +19,8 @@
   --color-warning: #ee9b00;
   --color-error: #ae2012;
 }
+
+@theme {
+  --shadow-under-8: 0 8px 0 0 rgba(0, 0, 0, 0.2);
+  --shadow-under-10: 0 10px 0 0 rgba(0, 0, 0, 0.2);
+}

@@ -1,6 +1,5 @@
-export const AuthPage = () => {
+export const AuthForm = () => {
   return (
     <div></div>
   )
 }
-

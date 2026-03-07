@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { routes } from "../app/router/routes";
+import { FeatureCard } from "../shared/ui/FeatureCard";
 
 export const HomePage = () => {
   return (
@@ -14,7 +15,7 @@ export const HomePage = () => {
       <section
         className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-6 py-16 text-center">
         <div
-          className="inline-flex -rotate-2 items-center gap-3 rounded-full border-2 border-primary/60 bg-primary px-6 py-2 text-sm font-black uppercase tracking-[0.2em] text-primary-dark shadow-[0_8px_0_0_rgba(0,18,25,0.5)]">
+          className="inline-flex -rotate-2 items-center gap-3 rounded-full border-2 border-primary/60 bg-primary px-6 py-2 text-sm font-black uppercase tracking-[0.2em] text-primary-dark shadow-under-8">
           <span className="text-xl">♞</span>
           Master your next move
           <span className="text-xl">♞</span>
@@ -37,26 +38,12 @@ export const HomePage = () => {
         </div>
 
         <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
-          <div
-            className="rounded-3xl border-2 border-accent-100/70 bg-primary/15 p-5 text-left shadow-[0_10px_0_0_rgba(148,210,189,0.2)] backdrop-blur-sm transition hover:-translate-y-1">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-100">Strategy</p>
-            <p className="mt-2 text-2xl font-black text-primary">Puzzle Power</p>
-            <p className="mt-2 text-sm text-primary/85">See combos before they happen.</p>
-          </div>
-
-          <div
-            className="rounded-3xl border-2 border-accent-200/70 bg-primary/15 p-5 text-left shadow-[0_10px_0_0_rgba(10,147,150,0.25)] backdrop-blur-sm transition hover:-translate-y-1">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-100">Tempo</p>
-            <p className="mt-2 text-2xl font-black text-primary">Fast Tactics</p>
-            <p className="mt-2 text-sm text-primary/85">Strike first and keep pressure high.</p>
-          </div>
-
-          <div
-            className="rounded-3xl border-2 border-accent-400/70 bg-primary/15 p-5 text-left shadow-[0_10px_0_0_rgba(187,62,3,0.3)] backdrop-blur-sm transition hover:-translate-y-1">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-100">Mindset</p>
-            <p className="mt-2 text-2xl font-black text-primary">Champion Spirit</p>
-            <p className="mt-2 text-sm text-primary/85">Play fearless and enjoy every battle.</p>
-          </div>
+          <FeatureCard title="Strategy" subtitle="Puzzle Power" description="See combos before they happen."
+            colorClass="border-accent-100/70 bg-primary/15" />
+          <FeatureCard title="Tempo" subtitle="Fast Tactics" description="Strike first and keep pressure high."
+            colorClass="border-accent-200/70 bg-primary/15" />
+          <FeatureCard title="Mindset" subtitle="Champion Spirit" description="Play fearless and enjoy every battle."
+            colorClass="border-accent-400/70 bg-primary/15" />
         </div>
 
         <Link to={routes.auth}
