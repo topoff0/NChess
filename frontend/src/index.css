@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Double+Ink:wght@100..900&family=Fira+Code:wght@300..700&family=Funnel+Display:wght@300..800&family=Great+Vibes&family=Lexend+Exa:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Pompiere&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 @import "tailwindcss";
 
 @theme {
+  --font-sans: "Rubik", sans-serif;
+
   --color-primary: #e9d8a6;
   --color-primary-dark: #001219;
 
@@ -23,4 +26,8 @@
 @theme {
   --shadow-under-8: 0 8px 0 0 rgba(0, 0, 0, 0.2);
   --shadow-under-10: 0 10px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+body {
+  font-family: var(--font-sans);
 }

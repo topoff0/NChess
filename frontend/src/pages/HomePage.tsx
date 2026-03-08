@@ -1,16 +1,13 @@
-import { Link } from "react-router-dom";
 import { routes } from "../app/router/routes";
+import { DecorativeCircles } from "../shared/ui/DecorativeCircles";
 import { FeatureCard } from "../shared/ui/FeatureCard";
+import { StartButton } from "../shared/ui/StartButton";
 
 export const HomePage = () => {
   return (
     <main className="relative min-h-screen overflow-hidden bg-primary-dark text-text-dark">
-      <div
-        className="pointer-events-none absolute -left-16 -top-14 h-52 w-52 rounded-full bg-accent-100/45 blur-2xl animate-pulse" />
-      <div
-        className="pointer-events-none absolute right-0 top-10 h-64 w-64 -translate-x-10 rounded-full bg-accent-400/40 blur-3xl animate-pulse" />
-      <div
-        className="pointer-events-none absolute -bottom-20 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-accent-200/35 blur-3xl animate-bounce" />
+
+      <DecorativeCircles />
 
       <section
         className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-6 py-16 text-center">
@@ -32,8 +29,7 @@ export const HomePage = () => {
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg font-medium text-primary/90 sm:text-2xl">
-            Jump into a chess adventure where brave ideas, wild tactics,
-            and clever sacrifices unlock your path to greatness.
+            "On the Chess-board lie and hypocrisy do not survive long." – Emanuel Lasker
           </p>
         </div>
 
@@ -46,13 +42,8 @@ export const HomePage = () => {
             colorClass="border-accent-400/70 bg-primary/15" />
         </div>
 
-        <Link to={routes.auth}
-          className="group relative inline-flex -rotate-1 items-center justify-center gap-3 overflow-hidden rounded-2xl border-2 border-primary bg-accent-200 px-10 py-4 text-lg font-black uppercase tracking-[0.14em] text-primary-dark shadow-[0_10px_0_0_rgba(0,18,25,0.5)] transition duration-300 hover:-translate-y-1 hover:bg-primary hover:text-primary-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-100/70">
-          <span
-            className="absolute inset-0 translate-y-full bg-primary/20 transition duration-300 group-hover:translate-y-0" />
-          <span className="relative">Start Your Auth Journey</span>
-          <span className="relative text-2xl transition group-hover:translate-x-1 group-hover:-translate-y-1">♜</span>
-        </Link>
+        <StartButton to={routes.auth} text="Start Your Journey" />
+
       </section>
     </main>
   );
