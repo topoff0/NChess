@@ -1,6 +1,7 @@
 import { routes } from "../app/router/routes";
 import { DecorativeCircles } from "../shared/ui/DecorativeCircles";
 import { FeatureCard } from "../shared/ui/FeatureCard";
+import { Signboard } from "../shared/ui/Signboard";
 import { StartButton } from "../shared/ui/StartButton";
 
 export const HomePage = () => {
@@ -11,12 +12,8 @@ export const HomePage = () => {
 
       <section
         className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-6 py-16 text-center">
-        <div
-          className="inline-flex -rotate-2 items-center gap-3 rounded-full border-2 border-primary/60 bg-primary px-6 py-2 text-sm font-black uppercase tracking-[0.2em] text-primary-dark shadow-under-8">
-          <span className="text-xl">♞</span>
-          Master your next move
-          <span className="text-xl">♞</span>
-        </div>
+
+        <Signboard />
 
         <div className="space-y-5">
           <h1 className="text-4xl font-black uppercase leading-tight text-primary sm:text-6xl lg:text-7xl">
