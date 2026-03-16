@@ -1,8 +1,8 @@
 import { routes } from "../app/router/routes";
 import { DecorativeCircles } from "../shared/ui/DecorativeCircles";
-import { FeatureCard } from "../shared/ui/FeatureCard";
+import { FeatureCard } from "../shared/ui/Home/FeatureCard";
+import { StartButton } from "../shared/ui/Home/StartButton";
 import { Signboard } from "../shared/ui/Signboard";
-import { StartButton } from "../shared/ui/StartButton";
 
 export const HomePage = () => {
   return (
