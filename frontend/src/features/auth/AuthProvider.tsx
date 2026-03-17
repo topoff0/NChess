@@ -1,12 +1,12 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type AuthContextType = {
   isAuthenticated: boolean;
-  login: () => void;
+  login: (token: string) => void;
   logout: () => void;
 };
 
-const AUTH_TOKEN_KEY = "nchess_auth_token";
+export const AUTH_TOKEN_KEY = "nchess_auth_token";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -18,17 +18,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsAuthenticated(Boolean(token));
   }, []);
 
-  const login = () => setIsAuthenticated(true);
+  const login = (token: string) => {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    setIsAuthenticated(true);
+  }
   const logout = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     setIsAuthenticated(false);
   };
 
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => ({
+    isAuthenticated,
+    login,
+    logout,
+  }),
+    [isAuthenticated],);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
@@ -36,5 +42,3 @@ export const useAuth = () => {
   if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
-
-export { AUTH_TOKEN_KEY };
