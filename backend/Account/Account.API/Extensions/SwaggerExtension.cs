@@ -10,7 +10,7 @@ public static class SwaggerExtension
         {
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Chess API",
+                Title = "Account API",
                 Version = "1.0"
             });
 
@@ -38,7 +38,7 @@ public static class SwaggerExtension
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Chess API v1.0");
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Account API v1.0");
                 options.RoutePrefix = string.Empty;
             });
         }
