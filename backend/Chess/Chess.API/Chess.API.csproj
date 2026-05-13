@@ -5,6 +5,14 @@
     <ProjectReference Include="..\Chess.Infrastructure\Chess.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Data\**\*.cs" Link="Legacy\Data\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\DTO\**\*.cs" Link="Legacy\DTO\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Exceptions\**\*.cs" Link="Legacy\Exceptions\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Main\**\*.cs" Link="Legacy\Main\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Models\**\*.cs" Link="Legacy\Models\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -12,7 +20,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.7" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
   </ItemGroup>

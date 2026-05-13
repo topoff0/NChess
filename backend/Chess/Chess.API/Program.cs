@@ -1,8 +1,13 @@
+using Chess.API.Implementations;
+using Chess.API.Interfaces;
 using Chess.API.Extensions;
+using Chess.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<GamesDbContext>();
+builder.Services.AddScoped<IMovement, Movement>();
 
 builder.Services.AddOpenApi();
 
@@ -22,5 +27,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
 
