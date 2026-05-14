@@ -1,7 +1,7 @@
 using Chess.Core.Repositories.Common;
-using Chess.Data;
+using Chess.Infrastructure.Persistence;
 
-namespace Chess.API.Persistence.Repositories.Common;
+namespace Chess.Infrastructure.Persistence.Repositories.Common;
 
 public sealed class UnitOfWork(GamesDbContext dbContext) : IUnitOfWork
 {

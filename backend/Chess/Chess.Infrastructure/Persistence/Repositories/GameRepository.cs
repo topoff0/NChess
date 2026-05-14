@@ -1,9 +1,9 @@
 using Chess.Core.Entities;
 using Chess.Core.Repositories;
-using Chess.Data;
+using Chess.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chess.API.Persistence.Repositories;
+namespace Chess.Infrastructure.Persistence.Repositories;
 
 public sealed class GameRepository(GamesDbContext dbContext) : IGameRepository
 {
