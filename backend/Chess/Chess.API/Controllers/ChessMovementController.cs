@@ -1,17 +1,10 @@
 using System.Security.Claims;
-using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Application.Features.Games.Commands.MakeMove;
+using Chess.Application.Features.Games.Commands.PromotePawn;
 using Chess.Application.Features.Games.Commands.StartGame;
-using Chess.Application.Features.Games.Common;
-using Chess.Core.Entities;
-using Chess.Core.FEN;
-using Chess.Core.Models;
-using Chess.Core.Repositories;
-using Chess.Core.Repositories.Common;
-using Chess.Core.Search;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,23 +15,14 @@ namespace Chess.API.Controllers
     [Route("api/ChessMovement")]
     public class ChessMovementController : ControllerBase
     {
-        private readonly IMovement _movement;
         private readonly IMediator _mediator;
-        private readonly IGameRepository _gameRepository;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ChessMovementController> _logger;
 
 
-        public ChessMovementController(IMovement movementAPI,
-                                       IMediator mediator,
-                                       IGameRepository gameRepository,
-                                       IUnitOfWork unitOfWork,
+        public ChessMovementController(IMediator mediator,
                                        ILogger<ChessMovementController> logger)
         {
-            _movement = movementAPI;
             _mediator = mediator;
-            _gameRepository = gameRepository;
-            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -101,72 +85,16 @@ namespace Chess.API.Controllers
             try
             {
                 int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
+                PromotePawnCommand command = new(request, playerId, playerName);
+                PromotePawnCommandResult result = await _mediator.Send(command, token);
 
-                OnMoveResponse promoteResponse = await _movement.HandlePawnPromotion(request, playerId, token);
-
-                // * Make computer move
-                var legalComputerMoves = _movement.GetLegalMoves(promoteResponse.Fen);
-                Board board = FenUtility.LoadBoardFromFen(promoteResponse.Fen);
-                GameCondition? gameCondition = _movement.GetGameCondition(board, legalComputerMoves);
-                if (gameCondition.HasValue)
+                if (!result.IsGameFound)
                 {
-                    GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
-                    if (endedGame != null)
-                    {
-                        endedGame.IsActiveGame = false;
-                        await _unitOfWork.SaveChangesAsync(token);
-                        GameResponse endGameResponse = new(
-                                isSuccess: true, message: "Game ended", fen: promoteResponse.Fen,
-                                legalMoves: null, moveNotations: promoteResponse.MoveNotations, isGameEnded: true,
-                                winner: gameCondition.Value == GameCondition.Lose ? User.FindFirst(ClaimTypes.Name)?.Value : "DRAW"
-                            );
-
-                        return Ok(endGameResponse);
-                    }
                     return NotFound("Game was not found");
                 }
 
-                var moveValues = SearchAlgorithm.Search(legalComputerMoves, board);
-
-                MoveRequest computerMoveRequest = new()
-                {
-                    StartSquare = moveValues.StartSquare,
-                    TargetSquare = moveValues.TargetSquare,
-                    FenBeforeMove = promoteResponse.Fen
-                };
-                // Update promoteResponse after computer move
-                promoteResponse = await _movement.HandleMove(computerMoveRequest, 0, token);
-
-                var legalMoves = _movement.GetLegalMoves(promoteResponse.Fen);
-
-                gameCondition = _movement.GetGameCondition(board, legalMoves);
-
-                GameResponse response;
-
-                if (gameCondition.HasValue)
-                {
-                    GameInfo? endedGame = await _gameRepository.GetActiveByFirstPlayerIdAsync(playerId, token);
-                    if (endedGame != null)
-                    {
-                        endedGame.IsActiveGame = false;
-                        await _unitOfWork.SaveChangesAsync(token);
-                            response = new(
-                            isSuccess: true, message: "Successful move", fen: promoteResponse.Fen,
-                            legalMoves: legalMoves, moveNotations: promoteResponse.MoveNotations, isGameEnded: true,
-                            winner: gameCondition == GameCondition.Draw ? "DRAW" : "Computer");
-
-                        return Ok(response);
-                    }
-                    return NotFound("Game was not found");
-                }
-
-                response = new(
-                            isSuccess: true, message: "Successful move", fen: promoteResponse.Fen,
-                            legalMoves: legalMoves, moveNotations: promoteResponse.MoveNotations, isGameEnded: false,
-                            winner: null
-                        );
-
-                return Ok(response);
+                return Ok(result.Response);
             }
             catch (Exception ex)
             {

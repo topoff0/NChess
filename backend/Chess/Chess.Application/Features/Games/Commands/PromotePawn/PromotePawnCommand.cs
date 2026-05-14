@@ -1,0 +1,122 @@
+using Chess.Application.Contracts.Requests;
+using Chess.Application.Contracts.Responses.GameProcess;
+using Chess.Application.Features.Games.Common;
+using Chess.Application.Interfaces;
+using Chess.Core.Entities;
+using Chess.Core.FEN;
+using Chess.Core.Models;
+using Chess.Core.Repositories;
+using Chess.Core.Repositories.Common;
+using Chess.Core.Search;
+using MediatR;
+
+namespace Chess.Application.Features.Games.Commands.PromotePawn;
+
+public record PromotePawnCommand(PawnPromotionRequest Promotion, int PlayerId, string? PlayerName)
+    : IRequest<PromotePawnCommandResult>;
+
+public sealed record PromotePawnCommandResult(GameResponse? Response, bool IsGameFound)
+{
+    public static PromotePawnCommandResult Success(GameResponse response)
+    {
+        return new PromotePawnCommandResult(response, IsGameFound: true);
+    }
+
+    public static PromotePawnCommandResult GameNotFound()
+    {
+        return new PromotePawnCommandResult(Response: null, IsGameFound: false);
+    }
+}
+
+public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
+                                             IUnitOfWork unitOfWork,
+                                             IChessMovementService movementService)
+    : IRequestHandler<PromotePawnCommand, PromotePawnCommandResult>
+{
+    private readonly IGameRepository _gameRepository = gameRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IChessMovementService _movementService = movementService;
+
+    public async Task<PromotePawnCommandResult> Handle(PromotePawnCommand request, CancellationToken token)
+    {
+        OnMoveResponse promoteResponse = await _movementService.HandlePawnPromotion(
+            request.Promotion,
+            request.PlayerId,
+            token);
+
+        var legalComputerMoves = _movementService.GetLegalMoves(promoteResponse.Fen);
+        Board board = FenUtility.LoadBoardFromFen(promoteResponse.Fen);
+        GameCondition? gameCondition = _movementService.GetGameCondition(board, legalComputerMoves);
+
+        if (gameCondition.HasValue)
+        {
+            GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(request.PlayerId, token);
+            if (endedGame is null)
+            {
+                return PromotePawnCommandResult.GameNotFound();
+            }
+
+            endedGame.IsActiveGame = false;
+            await _unitOfWork.SaveChangesAsync(token);
+
+            GameResponse endGameResponse = new(
+                isSuccess: true,
+                message: "Game ended",
+                fen: promoteResponse.Fen,
+                legalMoves: null,
+                moveNotations: promoteResponse.MoveNotations,
+                isGameEnded: true,
+                winner: gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW");
+
+            return PromotePawnCommandResult.Success(endGameResponse);
+        }
+
+        var moveValues = SearchAlgorithm.Search(legalComputerMoves, board);
+
+        MoveRequest computerMoveRequest = new()
+        {
+            StartSquare = moveValues.StartSquare,
+            TargetSquare = moveValues.TargetSquare,
+            FenBeforeMove = promoteResponse.Fen
+        };
+
+        promoteResponse = await _movementService.HandleMove(computerMoveRequest, 0, token);
+
+        var legalMoves = _movementService.GetLegalMoves(promoteResponse.Fen);
+        gameCondition = _movementService.GetGameCondition(board, legalMoves);
+
+        if (gameCondition.HasValue)
+        {
+            GameInfo? endedGame = await _gameRepository.GetActiveByFirstPlayerIdAsync(request.PlayerId, token);
+            if (endedGame is null)
+            {
+                return PromotePawnCommandResult.GameNotFound();
+            }
+
+            endedGame.IsActiveGame = false;
+            await _unitOfWork.SaveChangesAsync(token);
+
+            GameResponse endGameResponse = new(
+                isSuccess: true,
+                message: "Successful move",
+                fen: promoteResponse.Fen,
+                legalMoves: legalMoves,
+                moveNotations: promoteResponse.MoveNotations,
+                isGameEnded: true,
+                winner: gameCondition == GameCondition.Draw ? "DRAW" : "Computer");
+
+            return PromotePawnCommandResult.Success(endGameResponse);
+        }
+
+        GameResponse response = new(
+            isSuccess: true,
+            message: "Successful move",
+            fen: promoteResponse.Fen,
+            legalMoves: legalMoves,
+            moveNotations: promoteResponse.MoveNotations,
+            isGameEnded: false,
+            winner: null);
+
+        return PromotePawnCommandResult.Success(response);
+    }
+}
