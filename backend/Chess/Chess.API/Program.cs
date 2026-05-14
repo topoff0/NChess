@@ -1,8 +1,5 @@
-using Chess.API.Implementations;
-using Chess.API.Interfaces;
 using Chess.API.Extensions;
 using Chess.Application;
-using Chess.Application.Interfaces;
 using Chess.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddScoped<IMovement, Movement>();
-builder.Services.AddScoped<IChessMovementService, Movement>();
 
 builder.Services.AddOpenApi();
 

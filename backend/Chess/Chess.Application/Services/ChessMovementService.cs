@@ -1,4 +1,3 @@
-using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Application.Features.Games.Common;
@@ -14,10 +13,10 @@ using Chess.Core.Repositories;
 using Chess.Core.Repositories.Common;
 
 
-namespace Chess.API.Implementations
+namespace Chess.Application.Services
 {
-    public class Movement(IGameRepository gameRepository, IUnitOfWork unitOfWork)
-        : IMovement, IChessMovementService
+    public class ChessMovementService(IGameRepository gameRepository, IUnitOfWork unitOfWork)
+        : IChessMovementService
     {
         private readonly IGameRepository _gameRepository = gameRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -195,11 +194,6 @@ namespace Chess.API.Implementations
             await _unitOfWork.SaveChangesAsync(token);
 
             return new OnMoveResponse(fenAfterMove, game.Moves);
-        }
-
-        public Task<OnMoveResponse> OnMove(MoveRequest request, int playerId)
-        {
-            throw new NotImplementedException();
         }
     }
 }
