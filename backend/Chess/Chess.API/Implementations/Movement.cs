@@ -1,13 +1,13 @@
 using Chess.API.Interfaces;
+using Chess.Application.Contracts.Requests;
+using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Data;
-using Chess.DTO.Requests;
 using Chess.Models;
 using Chess.Main.Core.FEN;
 using Chess.Main.Core.Helpers.BitOperation;
 using Chess.Main.Core.Helpers.Squares;
 using Chess.Main.Core.Movement.Generator;
 using Chess.Main.Models;
-using Chess.DTO.Responses.GameProcess;
 using Chess.Main.Core.MoveNotation;
 
 

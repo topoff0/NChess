@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="..\Data\**\*.cs" Link="Legacy\Data\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\DTO\**\*.cs" Link="Legacy\DTO\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\Exceptions\**\*.cs" Link="Legacy\Exceptions\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\Main\**\*.cs" Link="Legacy\Main\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\Models\**\*.cs" Link="Legacy\Models\%(RecursiveDir)%(Filename)%(Extension)" />

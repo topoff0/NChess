@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Chess.API.Interfaces;
+using Chess.Application.Contracts.Requests;
+using Chess.Application.Contracts.Responses;
+using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Data;
-using Chess.DTO.Requests;
-using Chess.DTO.Responses;
-using Chess.DTO.Responses.GameProcess;
 using Chess.Main.Core.FEN;
 using Chess.Main.Models;
 using Chess.Main.Search;

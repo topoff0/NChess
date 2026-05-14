@@ -1,4 +1,4 @@
-namespace Chess.DTO.Requests
+namespace Chess.Application.Contracts.Requests
 {
     public class OnlineGameStartRequest(bool isPlayerPlayWhite, int firstPlayerId, int secondPlayerId = 0)
     : GameStartRequest(isPlayerPlayWhite)

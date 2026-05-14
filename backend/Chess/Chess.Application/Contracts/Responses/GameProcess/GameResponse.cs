@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+using Chess.Application.Contracts.Responses;
 
-namespace Chess.DTO.Responses.GameProcess
+namespace Chess.Application.Contracts.Responses.GameProcess
 {
     public class GameResponse(bool isSuccess, string message,string fen,
     Dictionary<int, List<int>> legalMoves, List<string> moveNotations, bool isGameEnded, string? winner)
@@ -12,7 +12,7 @@ namespace Chess.DTO.Responses.GameProcess
         public string Fen { get; set; } = fen;
         [JsonPropertyName("legalMoves")]
         public Dictionary<int, List<int>> LegalMoves { get; set; } = legalMoves;
-        [JsonProperty("moveNotations")]
+        [JsonPropertyName("moveNotations")]
         public List<string> MoveNotations { get; set; } = moveNotations;
         [JsonPropertyName("isGameEnded")]
         public bool IsGameEnded { get; set; } = isGameEnded;

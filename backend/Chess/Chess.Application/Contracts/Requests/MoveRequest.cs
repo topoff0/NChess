@@ -1,4 +1,4 @@
-namespace Chess.DTO.Requests
+namespace Chess.Application.Contracts.Requests
 {
     public record MoveRequest
     {

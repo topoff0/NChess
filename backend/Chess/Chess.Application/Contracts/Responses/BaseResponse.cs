@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Chess.DTO.Responses
+namespace Chess.Application.Contracts.Responses
 {
     public class BaseResponse
     {

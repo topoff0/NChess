@@ -1,4 +1,4 @@
-namespace Chess.DTO.Responses.GameProcess
+namespace Chess.Application.Contracts.Responses.GameProcess
 {
     public class OnMoveResponse(string fen, List<string> moveNotations)
     {

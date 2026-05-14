@@ -1,5 +1,5 @@
-using Chess.DTO.Requests;
-using Chess.DTO.Responses.GameProcess;
+using Chess.Application.Contracts.Requests;
+using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Main.Models;
 
 namespace Chess.API.Interfaces
