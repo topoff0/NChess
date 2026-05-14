@@ -1,6 +1,7 @@
 using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
+using Chess.Application.Interfaces;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Helpers.BitOperation;
@@ -14,7 +15,8 @@ using Chess.Core.Repositories.Common;
 
 namespace Chess.API.Implementations
 {
-    public class Movement(IGameRepository gameRepository, IUnitOfWork unitOfWork) : IMovement
+    public class Movement(IGameRepository gameRepository, IUnitOfWork unitOfWork)
+        : IMovement, IChessMovementService
     {
         private readonly IGameRepository _gameRepository = gameRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;

@@ -3,12 +3,14 @@ using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses;
 using Chess.Application.Contracts.Responses.GameProcess;
+using Chess.Application.Features.Games.Commands.StartGame;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Models;
 using Chess.Core.Repositories;
 using Chess.Core.Repositories.Common;
 using Chess.Core.Search;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,17 +21,20 @@ namespace Chess.API.Controllers
     public class ChessMovementController : ControllerBase
     {
         private readonly IMovement _movement;
+        private readonly IMediator _mediator;
         private readonly IGameRepository _gameRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ChessMovementController> _logger;
 
 
         public ChessMovementController(IMovement movementAPI,
+                                       IMediator mediator,
                                        IGameRepository gameRepository,
                                        IUnitOfWork unitOfWork,
                                        ILogger<ChessMovementController> logger)
         {
             _movement = movementAPI;
+            _mediator = mediator;
             _gameRepository = gameRepository;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -43,60 +48,8 @@ namespace Chess.API.Controllers
             try
             {
                 int firstPlayerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                GameInfo? activeGame = await _gameRepository.GetActiveByFirstPlayerIdAsync(firstPlayerId, token);
-
-                if (activeGame != null)
-                {
-                    string lastFenOfActiveGame = activeGame.Fens[^1];
-                    var legalMoves_ = _movement.GetLegalMoves(lastFenOfActiveGame);
-
-                    GameResponse existGameResponse = new(
-                    isSuccess: true, message: "You are already playing", fen: lastFenOfActiveGame,
-                    legalMoves: legalMoves_, moveNotations: activeGame.Moves, isGameEnded: false,
-                    winner: null);
-
-                    return Ok(existGameResponse);
-                }
-
-                string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-                GameInfo newGame = new()
-                {
-                    Fens = [fen],
-                    Moves = [],
-                    IsActiveGame = true,
-                    FirstPlayerId = firstPlayerId,
-                    SecondPlayerId = 0
-                };
-                await _gameRepository.AddAsync(newGame, token);
-                await _unitOfWork.SaveChangesAsync(token);
-
-                List<string> moveNotations = [];
-
-                if (!request.IsPlayerPlayWhite) // player plays black
-                {
-                    var legalComputerMoves = _movement.GetLegalMoves(fen);
-                    Board board = FenUtility.LoadBoardFromFen(fen);
-                    var moveValues = SearchAlgorithm.Search(legalComputerMoves, board);
-
-                    MoveRequest computerMoveRequest = new()
-                    {
-                        StartSquare = moveValues.StartSquare,
-                        TargetSquare = moveValues.TargetSquare,
-                        FenBeforeMove = fen
-                    };
-
-                    OnMoveResponse moveResponse = await _movement.HandleMove(computerMoveRequest, 0, token);
-                    fen = moveResponse.Fen;
-                }
-
-
-                var legalMoves = _movement.GetLegalMoves(fen);
-
-                GameResponse response = new(
-                    isSuccess: true, message: "Game successfully started", fen: fen,
-                    legalMoves: legalMoves, moveNotations, isGameEnded: false, winner: null);
-
+                StartGameCommand command = new(firstPlayerId, request.IsPlayerPlayWhite);
+                GameResponse response = await _mediator.Send(command, token);
                 return Ok(response);
             }
             catch (Exception ex)
