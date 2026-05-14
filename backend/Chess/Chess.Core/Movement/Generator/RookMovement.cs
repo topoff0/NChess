@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Chess.Core.Helpers.MagicBitboards;
 using Chess.Core.Models;
 

@@ -1,4 +1,3 @@
-using Chess.Core.Helpers.BitOperation;
 using Chess.Core.Models;
 
 namespace Chess.Core.Helpers.Castling

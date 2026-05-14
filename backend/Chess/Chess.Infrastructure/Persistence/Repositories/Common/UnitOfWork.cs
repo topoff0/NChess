@@ -1,5 +1,4 @@
 using Chess.Core.Repositories.Common;
-using Chess.Infrastructure.Persistence;
 
 namespace Chess.Infrastructure.Persistence.Repositories.Common;
 

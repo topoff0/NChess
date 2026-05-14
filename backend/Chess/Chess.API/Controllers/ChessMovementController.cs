@@ -3,7 +3,9 @@ using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses;
 using Chess.Application.Contracts.Responses.GameProcess;
+using Chess.Application.Features.Games.Commands.MakeMove;
 using Chess.Application.Features.Games.Commands.StartGame;
+using Chess.Application.Features.Games.Common;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Models;
@@ -68,90 +70,17 @@ namespace Chess.API.Controllers
         {
             try
             {
-                // Get player that playing current game from jwt token
                 int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
+                MakeMoveCommand command = new(request, playerId, playerName);
+                MakeMoveCommandResult result = await _mediator.Send(command, token);
 
-                // Make player move
-                OnMoveResponse moveResponse = await _movement.HandleMove(request, playerId, token);
-
-                // * Make computer move
-                var legalComputerMoves = _movement.GetLegalMoves(moveResponse.Fen);
-                Board board = FenUtility.LoadBoardFromFen(moveResponse.Fen);
-                IMovement.GameCondition? gameCondition = _movement.GetGameCondition(board, legalComputerMoves);
-                if (gameCondition.HasValue)
+                if (!result.IsGameFound)
                 {
-                    GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
-                    if (endedGame != null)
-                    {
-                        endedGame.IsActiveGame = false;
-                        await _unitOfWork.SaveChangesAsync(token);
-                        GameResponse endGameResponse = new(
-                                isSuccess: true, message: "Game ended", fen: moveResponse.Fen,
-                                legalMoves: null, moveNotations: moveResponse.MoveNotations, isGameEnded: true,
-                                winner: gameCondition.Value == IMovement.GameCondition.LOSE ? User.FindFirst(ClaimTypes.Name)?.Value : "DRAW"
-                            );
-
-                        return Ok(endGameResponse);
-                    }
                     return NotFound("Game was not found");
                 }
 
-                var moveValues = SearchAlgorithm.Search(legalComputerMoves, board);
-
-                if (moveValues.IsItPromotionPawnMove && moveValues.PromotionPiece.HasValue)
-                {
-                    PawnPromotionRequest promotionRequest = new()
-                    {
-                        StartSquare = moveValues.StartSquare,
-                        TargetSquare = moveValues.TargetSquare,
-                        FenBeforeMove = moveResponse.Fen,
-                        ChosenPiece = moveValues.PromotionPiece.Value
-                    };
-                    Console.WriteLine(moveValues.PromotionPiece);
-                    moveResponse = await _movement.HandlePawnPromotion(promotionRequest, playerId, token);
-                }
-                else
-                {
-                    MoveRequest computerMoveRequest = new()
-                    {
-                        StartSquare = moveValues.StartSquare,
-                        TargetSquare = moveValues.TargetSquare,
-                        FenBeforeMove = moveResponse.Fen
-                    };
-                    // Update moveResponse after computer move
-                    moveResponse = await _movement.HandleMove(computerMoveRequest, 0, token);
-                }
-
-                var legalMoves = _movement.GetLegalMoves(moveResponse.Fen);
-                board = FenUtility.LoadBoardFromFen(moveResponse.Fen); // Get updated board state
-                gameCondition = _movement.GetGameCondition(board, legalMoves);
-
-                GameResponse response;
-
-                if (gameCondition.HasValue)
-                {
-                    GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
-                    if (endedGame != null)
-                    {
-                        endedGame.IsActiveGame = false;
-                        await _unitOfWork.SaveChangesAsync(token);
-                        response = new(
-                            isSuccess: true, message: "Game ended", fen: moveResponse.Fen,
-                            legalMoves: legalMoves, moveNotations: moveResponse.MoveNotations, isGameEnded: true,
-                            winner: gameCondition.Value == IMovement.GameCondition.DRAW ? "DRAW" : "Computer");
-
-                        return Ok(response);
-                    }
-                    return NotFound("Game was not found");
-                }
-
-                response = new(
-                            isSuccess: true, message: "Successful move", fen: moveResponse.Fen,
-                            legalMoves: legalMoves, moveNotations: moveResponse.MoveNotations, isGameEnded: false,
-                            winner: null
-                        );
-
-                return Ok(response);
+                return Ok(result.Response);
             }
             catch (Exception ex)
             {
@@ -178,7 +107,7 @@ namespace Chess.API.Controllers
                 // * Make computer move
                 var legalComputerMoves = _movement.GetLegalMoves(promoteResponse.Fen);
                 Board board = FenUtility.LoadBoardFromFen(promoteResponse.Fen);
-                IMovement.GameCondition? gameCondition = _movement.GetGameCondition(board, legalComputerMoves);
+                GameCondition? gameCondition = _movement.GetGameCondition(board, legalComputerMoves);
                 if (gameCondition.HasValue)
                 {
                     GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
@@ -189,7 +118,7 @@ namespace Chess.API.Controllers
                         GameResponse endGameResponse = new(
                                 isSuccess: true, message: "Game ended", fen: promoteResponse.Fen,
                                 legalMoves: null, moveNotations: promoteResponse.MoveNotations, isGameEnded: true,
-                                winner: gameCondition.Value == IMovement.GameCondition.LOSE ? User.FindFirst(ClaimTypes.Name)?.Value : "DRAW"
+                                winner: gameCondition.Value == GameCondition.Lose ? User.FindFirst(ClaimTypes.Name)?.Value : "DRAW"
                             );
 
                         return Ok(endGameResponse);
@@ -221,10 +150,10 @@ namespace Chess.API.Controllers
                     {
                         endedGame.IsActiveGame = false;
                         await _unitOfWork.SaveChangesAsync(token);
-                        response = new(
+                            response = new(
                             isSuccess: true, message: "Successful move", fen: promoteResponse.Fen,
                             legalMoves: legalMoves, moveNotations: promoteResponse.MoveNotations, isGameEnded: true,
-                            winner: gameCondition == IMovement.GameCondition.DRAW ? "DRAW" : "Computer");
+                            winner: gameCondition == GameCondition.Draw ? "DRAW" : "Computer");
 
                         return Ok(response);
                     }

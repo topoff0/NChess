@@ -1,5 +1,3 @@
-using Chess.Core.Models;
-
 namespace Chess.Core.Movement
 {
     public static class BitMovement

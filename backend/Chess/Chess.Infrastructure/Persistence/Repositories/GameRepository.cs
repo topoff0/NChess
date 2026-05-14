@@ -1,6 +1,5 @@
 using Chess.Core.Entities;
 using Chess.Core.Repositories;
-using Chess.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess.Infrastructure.Persistence.Repositories;

@@ -1,6 +1,7 @@
 using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
+using Chess.Application.Features.Games.Common;
 using Chess.Application.Interfaces;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
@@ -146,15 +147,15 @@ namespace Chess.API.Implementations
             return response;
         }
 
-        public IMovement.GameCondition? GetGameCondition(Board board, Dictionary<int, List<int>> legalMoves)
+        public GameCondition? GetGameCondition(Board board, Dictionary<int, List<int>> legalMoves)
         {
             if (legalMoves.Count == 0)
             {
                 if (KingMovement.IsKingUnderAttack(board)) // here board after move
                 {
-                    return IMovement.GameCondition.LOSE;
+                    return GameCondition.Lose;
                 }
-                return IMovement.GameCondition.DRAW;
+                return GameCondition.Draw;
             }
 
             return null;
