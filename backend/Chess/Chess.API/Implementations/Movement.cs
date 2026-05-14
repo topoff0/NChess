@@ -2,7 +2,7 @@ using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Data;
-using Chess.Models;
+using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Helpers.BitOperation;
 using Chess.Core.Helpers.Squares;

@@ -7,7 +7,7 @@ using Chess.Data;
 using Chess.Core.FEN;
 using Chess.Core.Models;
 using Chess.Core.Search;
-using Chess.Models;
+using Chess.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

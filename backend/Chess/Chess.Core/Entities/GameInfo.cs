@@ -1,4 +1,4 @@
-namespace Chess.Models
+namespace Chess.Core.Entities
 {
     public class GameInfo
     {

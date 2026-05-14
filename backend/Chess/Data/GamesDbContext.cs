@@ -1,4 +1,4 @@
-using Chess.Models;
+using Chess.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess.Data
