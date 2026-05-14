@@ -1,6 +1,6 @@
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
-using Chess.Main.Models;
+using Chess.Core.Models;
 
 namespace Chess.API.Interfaces
 {

@@ -3,12 +3,12 @@ using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Data;
 using Chess.Models;
-using Chess.Main.Core.FEN;
-using Chess.Main.Core.Helpers.BitOperation;
-using Chess.Main.Core.Helpers.Squares;
-using Chess.Main.Core.Movement.Generator;
-using Chess.Main.Models;
-using Chess.Main.Core.MoveNotation;
+using Chess.Core.FEN;
+using Chess.Core.Helpers.BitOperation;
+using Chess.Core.Helpers.Squares;
+using Chess.Core.Movement.Generator;
+using Chess.Core.Models;
+using Chess.Core.MoveNotation;
 
 
 namespace Chess.API.Implementations
