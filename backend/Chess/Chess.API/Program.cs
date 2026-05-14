@@ -1,11 +1,13 @@
 using Chess.API.Implementations;
 using Chess.API.Interfaces;
 using Chess.API.Extensions;
+using Chess.Application;
 using Chess.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IMovement, Movement>();
 
