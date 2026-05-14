@@ -3,14 +3,14 @@ using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses;
 using Chess.Application.Contracts.Responses.GameProcess;
-using Chess.Data;
+using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Models;
+using Chess.Core.Repositories;
+using Chess.Core.Repositories.Common;
 using Chess.Core.Search;
-using Chess.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Chess.API.Controllers
 {
@@ -19,25 +19,31 @@ namespace Chess.API.Controllers
     public class ChessMovementController : ControllerBase
     {
         private readonly IMovement _movement;
-        private readonly GamesDbContext _db;
+        private readonly IGameRepository _gameRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ChessMovementController> _logger;
 
 
-        public ChessMovementController(IMovement movementAPI, GamesDbContext db, ILogger<ChessMovementController> logger)
+        public ChessMovementController(IMovement movementAPI,
+                                       IGameRepository gameRepository,
+                                       IUnitOfWork unitOfWork,
+                                       ILogger<ChessMovementController> logger)
         {
             _movement = movementAPI;
-            _db = db;
+            _gameRepository = gameRepository;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
         [HttpPost("OnGameStart")]
         [Authorize]
-        public async Task<IActionResult> OnGameStart([FromBody] GameStartRequest request)
+        public async Task<IActionResult> OnGameStart([FromBody] GameStartRequest request,
+                                                     CancellationToken token)
         {
             try
             {
                 int firstPlayerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                GameInfo? activeGame = await _db.Games.FirstOrDefaultAsync(x => x.FirstPlayerId == firstPlayerId && x.IsActiveGame);
+                GameInfo? activeGame = await _gameRepository.GetActiveByFirstPlayerIdAsync(firstPlayerId, token);
 
                 if (activeGame != null)
                 {
@@ -62,8 +68,8 @@ namespace Chess.API.Controllers
                     FirstPlayerId = firstPlayerId,
                     SecondPlayerId = 0
                 };
-                _db.Games.Add(newGame);
-                await _db.SaveChangesAsync();
+                await _gameRepository.AddAsync(newGame, token);
+                await _unitOfWork.SaveChangesAsync(token);
 
                 List<string> moveNotations = [];
 
@@ -80,7 +86,7 @@ namespace Chess.API.Controllers
                         FenBeforeMove = fen
                     };
 
-                    OnMoveResponse moveResponse = await _movement.HandleMove(computerMoveRequest, 0);
+                    OnMoveResponse moveResponse = await _movement.HandleMove(computerMoveRequest, 0, token);
                     fen = moveResponse.Fen;
                 }
 
@@ -104,7 +110,8 @@ namespace Chess.API.Controllers
 
         [HttpPost("MakeMove")]
         [Authorize]
-        public async Task<IActionResult> MakeMove([FromBody] MoveRequest request)
+        public async Task<IActionResult> MakeMove([FromBody] MoveRequest request,
+                                                  CancellationToken token)
         {
             try
             {
@@ -112,7 +119,7 @@ namespace Chess.API.Controllers
                 int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
                 // Make player move
-                OnMoveResponse moveResponse = await _movement.HandleMove(request, playerId);
+                OnMoveResponse moveResponse = await _movement.HandleMove(request, playerId, token);
 
                 // * Make computer move
                 var legalComputerMoves = _movement.GetLegalMoves(moveResponse.Fen);
@@ -120,11 +127,11 @@ namespace Chess.API.Controllers
                 IMovement.GameCondition? gameCondition = _movement.GetGameCondition(board, legalComputerMoves);
                 if (gameCondition.HasValue)
                 {
-                    GameInfo? endedGame = await _db.Games.FirstOrDefaultAsync(g => g.FirstPlayerId == playerId);
+                    GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
                     if (endedGame != null)
                     {
                         endedGame.IsActiveGame = false;
-                        await _db.SaveChangesAsync();
+                        await _unitOfWork.SaveChangesAsync(token);
                         GameResponse endGameResponse = new(
                                 isSuccess: true, message: "Game ended", fen: moveResponse.Fen,
                                 legalMoves: null, moveNotations: moveResponse.MoveNotations, isGameEnded: true,
@@ -148,7 +155,7 @@ namespace Chess.API.Controllers
                         ChosenPiece = moveValues.PromotionPiece.Value
                     };
                     Console.WriteLine(moveValues.PromotionPiece);
-                    moveResponse = await _movement.HandlePawnPromotion(promotionRequest, playerId);
+                    moveResponse = await _movement.HandlePawnPromotion(promotionRequest, playerId, token);
                 }
                 else
                 {
@@ -159,7 +166,7 @@ namespace Chess.API.Controllers
                         FenBeforeMove = moveResponse.Fen
                     };
                     // Update moveResponse after computer move
-                    moveResponse = await _movement.HandleMove(computerMoveRequest, 0);
+                    moveResponse = await _movement.HandleMove(computerMoveRequest, 0, token);
                 }
 
                 var legalMoves = _movement.GetLegalMoves(moveResponse.Fen);
@@ -170,11 +177,11 @@ namespace Chess.API.Controllers
 
                 if (gameCondition.HasValue)
                 {
-                    GameInfo? endedGame = await _db.Games.FirstOrDefaultAsync(g => g.FirstPlayerId == playerId);
+                    GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
                     if (endedGame != null)
                     {
                         endedGame.IsActiveGame = false;
-                        await _db.SaveChangesAsync();
+                        await _unitOfWork.SaveChangesAsync(token);
                         response = new(
                             isSuccess: true, message: "Game ended", fen: moveResponse.Fen,
                             legalMoves: legalMoves, moveNotations: moveResponse.MoveNotations, isGameEnded: true,
@@ -206,13 +213,14 @@ namespace Chess.API.Controllers
 
         [HttpPost("PromotePawn")]
         [Authorize]
-        public async Task<IActionResult> PromotePawn([FromBody] PawnPromotionRequest request)
+        public async Task<IActionResult> PromotePawn([FromBody] PawnPromotionRequest request,
+                                                     CancellationToken token)
         {
             try
             {
                 int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-                OnMoveResponse promoteResponse = await _movement.HandlePawnPromotion(request, playerId);
+                OnMoveResponse promoteResponse = await _movement.HandlePawnPromotion(request, playerId, token);
 
                 // * Make computer move
                 var legalComputerMoves = _movement.GetLegalMoves(promoteResponse.Fen);
@@ -220,11 +228,11 @@ namespace Chess.API.Controllers
                 IMovement.GameCondition? gameCondition = _movement.GetGameCondition(board, legalComputerMoves);
                 if (gameCondition.HasValue)
                 {
-                    GameInfo? endedGame = await _db.Games.FirstOrDefaultAsync(g => g.FirstPlayerId == playerId);
+                    GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(playerId, token);
                     if (endedGame != null)
                     {
                         endedGame.IsActiveGame = false;
-                        await _db.SaveChangesAsync();
+                        await _unitOfWork.SaveChangesAsync(token);
                         GameResponse endGameResponse = new(
                                 isSuccess: true, message: "Game ended", fen: promoteResponse.Fen,
                                 legalMoves: null, moveNotations: promoteResponse.MoveNotations, isGameEnded: true,
@@ -245,7 +253,7 @@ namespace Chess.API.Controllers
                     FenBeforeMove = promoteResponse.Fen
                 };
                 // Update promoteResponse after computer move
-                promoteResponse = await _movement.HandleMove(computerMoveRequest, 0);
+                promoteResponse = await _movement.HandleMove(computerMoveRequest, 0, token);
 
                 var legalMoves = _movement.GetLegalMoves(promoteResponse.Fen);
 
@@ -255,11 +263,11 @@ namespace Chess.API.Controllers
 
                 if (gameCondition.HasValue)
                 {
-                    GameInfo? endedGame = await _db.Games.FirstOrDefaultAsync(g => g.FirstPlayerId == playerId && g.IsActiveGame == true);
+                    GameInfo? endedGame = await _gameRepository.GetActiveByFirstPlayerIdAsync(playerId, token);
                     if (endedGame != null)
                     {
                         endedGame.IsActiveGame = false;
-                        await _db.SaveChangesAsync();
+                        await _unitOfWork.SaveChangesAsync(token);
                         response = new(
                             isSuccess: true, message: "Successful move", fen: promoteResponse.Fen,
                             legalMoves: legalMoves, moveNotations: promoteResponse.MoveNotations, isGameEnded: true,

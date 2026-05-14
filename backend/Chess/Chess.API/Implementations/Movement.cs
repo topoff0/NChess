@@ -1,7 +1,6 @@
 using Chess.API.Interfaces;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
-using Chess.Data;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Helpers.BitOperation;
@@ -9,13 +8,16 @@ using Chess.Core.Helpers.Squares;
 using Chess.Core.Movement.Generator;
 using Chess.Core.Models;
 using Chess.Core.MoveNotation;
+using Chess.Core.Repositories;
+using Chess.Core.Repositories.Common;
 
 
 namespace Chess.API.Implementations
 {
-    public class Movement(GamesDbContext db) : IMovement
+    public class Movement(IGameRepository gameRepository, IUnitOfWork unitOfWork) : IMovement
     {
-        private readonly GamesDbContext _db = db;
+        private readonly IGameRepository _gameRepository = gameRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public Dictionary<int, List<int>> GetLegalMoves(string fen)
         {
@@ -104,7 +106,7 @@ namespace Chess.API.Implementations
             };
         }
 
-        public async Task<OnMoveResponse> HandleMove(MoveRequest request, int playerId)
+        public async Task<OnMoveResponse> HandleMove(MoveRequest request, int playerId, CancellationToken token)
         {
             Board board = FenUtility.LoadBoardFromFen(request.FenBeforeMove);
             char movingPieceSymbol = SquaresHelper.GetPieceSymbolFromSquare(board, request.StartSquare).GetValueOrDefault();
@@ -116,7 +118,7 @@ namespace Chess.API.Implementations
             board.MakeRegularMove(request.StartSquare, request.TargetSquare, ref board);
 
             // Find current game in db
-            GameInfo? game = _db.Games.FirstOrDefault(g => g.FirstPlayerId == playerId || g.SecondPlayerId == playerId && g.IsActiveGame);
+            GameInfo? game = await _gameRepository.GetActiveByPlayerIdAsync(playerId, token);
             if (game == null)
                 return new OnMoveResponse(null, null); // ? Maybe change this response
 
@@ -134,7 +136,7 @@ namespace Chess.API.Implementations
             // Update game info in database
             game.Fens.Add(fenAfterMove);
             game.Moves.Add(moveNotation);
-            await _db.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(token);
 
             List<string> moveNotations = game.Moves;
             var response = new OnMoveResponse(fenAfterMove, moveNotations);
@@ -156,9 +158,9 @@ namespace Chess.API.Implementations
             return null;
         }
 
-        public async Task<OnMoveResponse> HandlePawnPromotion(PawnPromotionRequest request, int playerId)
+        public async Task<OnMoveResponse> HandlePawnPromotion(PawnPromotionRequest request, int playerId, CancellationToken token)
         {
-            GameInfo? game = _db.Games.FirstOrDefault(g => g.FirstPlayerId == playerId || g.SecondPlayerId == playerId && g.IsActiveGame);
+            GameInfo? game = await _gameRepository.GetActiveByPlayerIdAsync(playerId, token);
             if (game == null)
                 return new OnMoveResponse(null, null); // ? Maybe change this response
 
@@ -187,7 +189,7 @@ namespace Chess.API.Implementations
             // Update game info in database
             game.Fens.Add(fenAfterMove);
             game.Moves.Add(moveNotation.ToString());
-            await _db.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(token);
 
             return new OnMoveResponse(fenAfterMove, game.Moves);
         }
