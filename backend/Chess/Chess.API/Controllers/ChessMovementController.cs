@@ -5,6 +5,7 @@ using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Application.Features.Games.Commands.MakeMove;
 using Chess.Application.Features.Games.Commands.PromotePawn;
 using Chess.Application.Features.Games.Commands.StartGame;
+using Chess.Application.Features.Games.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -57,7 +58,7 @@ namespace Chess.API.Controllers
                 int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
                 MakeMoveCommand command = new(request, playerId, playerName);
-                MakeMoveCommandResult result = await _mediator.Send(command, token);
+                GameCommandResult result = await _mediator.Send(command, token);
 
                 if (!result.IsGameFound)
                 {
@@ -87,7 +88,7 @@ namespace Chess.API.Controllers
                 int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
                 PromotePawnCommand command = new(request, playerId, playerName);
-                PromotePawnCommandResult result = await _mediator.Send(command, token);
+                GameCommandResult result = await _mediator.Send(command, token);
 
                 if (!result.IsGameFound)
                 {

@@ -13,31 +13,18 @@ using MediatR;
 namespace Chess.Application.Features.Games.Commands.MakeMove;
 
 public record MakeMoveCommand(MoveRequest Move, int PlayerId, string? PlayerName)
-    : IRequest<MakeMoveCommandResult>;
-
-public sealed record MakeMoveCommandResult(GameResponse? Response, bool IsGameFound)
-{
-    public static MakeMoveCommandResult Success(GameResponse response)
-    {
-        return new MakeMoveCommandResult(response, IsGameFound: true);
-    }
-
-    public static MakeMoveCommandResult GameNotFound()
-    {
-        return new MakeMoveCommandResult(Response: null, IsGameFound: false);
-    }
-}
+    : IRequest<GameCommandResult>;
 
 public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                                           IUnitOfWork unitOfWork,
                                           IChessMovementService movementService)
-    : IRequestHandler<MakeMoveCommand, MakeMoveCommandResult>
+    : IRequestHandler<MakeMoveCommand, GameCommandResult>
 {
     private readonly IGameRepository _gameRepository = gameRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IChessMovementService _movementService = movementService;
 
-    public async Task<MakeMoveCommandResult> Handle(MakeMoveCommand request, CancellationToken token)
+    public async Task<GameCommandResult> Handle(MakeMoveCommand request, CancellationToken token)
     {
         OnMoveResponse moveResponse = await _movementService.HandleMove(request.Move, request.PlayerId, token);
 
@@ -50,7 +37,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
             GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(request.PlayerId, token);
             if (endedGame is null)
             {
-                return MakeMoveCommandResult.GameNotFound();
+                return GameCommandResult.GameNotFound();
             }
 
             endedGame.IsActiveGame = false;
@@ -65,7 +52,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 isGameEnded: true,
                 winner: gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW");
 
-            return MakeMoveCommandResult.Success(endGameResponse);
+            return GameCommandResult.Success(endGameResponse);
         }
 
         var moveValues = SearchAlgorithm.Search(legalComputerMoves, board);
@@ -104,7 +91,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
             GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(request.PlayerId, token);
             if (endedGame is null)
             {
-                return MakeMoveCommandResult.GameNotFound();
+                return GameCommandResult.GameNotFound();
             }
 
             endedGame.IsActiveGame = false;
@@ -119,7 +106,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 isGameEnded: true,
                 winner: gameCondition.Value == GameCondition.Draw ? "DRAW" : "Computer");
 
-            return MakeMoveCommandResult.Success(endGameResponse);
+            return GameCommandResult.Success(endGameResponse);
         }
 
         GameResponse response = new(
@@ -131,6 +118,6 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
             isGameEnded: false,
             winner: null);
 
-        return MakeMoveCommandResult.Success(response);
+        return GameCommandResult.Success(response);
     }
 }

@@ -13,31 +13,18 @@ using MediatR;
 namespace Chess.Application.Features.Games.Commands.PromotePawn;
 
 public record PromotePawnCommand(PawnPromotionRequest Promotion, int PlayerId, string? PlayerName)
-    : IRequest<PromotePawnCommandResult>;
-
-public sealed record PromotePawnCommandResult(GameResponse? Response, bool IsGameFound)
-{
-    public static PromotePawnCommandResult Success(GameResponse response)
-    {
-        return new PromotePawnCommandResult(response, IsGameFound: true);
-    }
-
-    public static PromotePawnCommandResult GameNotFound()
-    {
-        return new PromotePawnCommandResult(Response: null, IsGameFound: false);
-    }
-}
+    : IRequest<GameCommandResult>;
 
 public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                                              IUnitOfWork unitOfWork,
                                              IChessMovementService movementService)
-    : IRequestHandler<PromotePawnCommand, PromotePawnCommandResult>
+    : IRequestHandler<PromotePawnCommand, GameCommandResult>
 {
     private readonly IGameRepository _gameRepository = gameRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IChessMovementService _movementService = movementService;
 
-    public async Task<PromotePawnCommandResult> Handle(PromotePawnCommand request, CancellationToken token)
+    public async Task<GameCommandResult> Handle(PromotePawnCommand request, CancellationToken token)
     {
         OnMoveResponse promoteResponse = await _movementService.HandlePawnPromotion(
             request.Promotion,
@@ -53,7 +40,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             GameInfo? endedGame = await _gameRepository.GetByFirstPlayerIdAsync(request.PlayerId, token);
             if (endedGame is null)
             {
-                return PromotePawnCommandResult.GameNotFound();
+                return GameCommandResult.GameNotFound();
             }
 
             endedGame.IsActiveGame = false;
@@ -68,7 +55,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                 isGameEnded: true,
                 winner: gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW");
 
-            return PromotePawnCommandResult.Success(endGameResponse);
+            return GameCommandResult.Success(endGameResponse);
         }
 
         var moveValues = SearchAlgorithm.Search(legalComputerMoves, board);
@@ -90,7 +77,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             GameInfo? endedGame = await _gameRepository.GetActiveByFirstPlayerIdAsync(request.PlayerId, token);
             if (endedGame is null)
             {
-                return PromotePawnCommandResult.GameNotFound();
+                return GameCommandResult.GameNotFound();
             }
 
             endedGame.IsActiveGame = false;
@@ -105,7 +92,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                 isGameEnded: true,
                 winner: gameCondition == GameCondition.Draw ? "DRAW" : "Computer");
 
-            return PromotePawnCommandResult.Success(endGameResponse);
+            return GameCommandResult.Success(endGameResponse);
         }
 
         GameResponse response = new(
@@ -117,6 +104,6 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             isGameEnded: false,
             winner: null);
 
-        return PromotePawnCommandResult.Success(response);
+        return GameCommandResult.Success(response);
     }
 }
