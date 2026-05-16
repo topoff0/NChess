@@ -1,16 +1,15 @@
-using System.Text;
-using Account.Application.Common.Configurations;
+﻿using System.Text;
+using Chess.Application.Common.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Account.Infrastructure.Configuration;
+namespace Chess.Infrastructure.Configuration;
 
 public static class JwtConfiguration
 {
-    public static IServiceCollection AddJwtAuthenticationConfiguration(this IServiceCollection services,
-                                                                       IConfiguration configuration)
+    public static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtOptions = configuration.GetSection(JwtOptions.JwtOptionsKey).Get<JwtOptions>()
             ?? throw new InvalidOperationException("Jwt section is not configured.");
@@ -26,24 +25,25 @@ public static class JwtConfiguration
             .Validate(o => o.RefreshTokenExpriryDays > 0, "Refresh token expiry must be positive.")
             .ValidateOnStart();
 
-
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
+            .AddJwtBearer(options =>
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
 
-                ValidateIssuer = true,
-                ValidIssuer = jwtOptions.Issuer,
-                ValidateAudience = true,
-                ValidAudience = jwtOptions.Audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-        });
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
+
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtOptions.Audience,
+                    ValidateLifetime = true,
+
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
         return services;
     }

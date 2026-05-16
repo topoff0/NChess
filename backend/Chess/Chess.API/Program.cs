@@ -4,6 +4,11 @@ using Chess.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var envFile = "dev.env";
+
+DotNetEnv.Env.TraversePath().Load(envFile);
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -1,5 +1,6 @@
 using Chess.Core.Repositories;
 using Chess.Core.Repositories.Common;
+using Chess.Infrastructure.Configuration;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Repositories;
 using Chess.Infrastructure.Persistence.Repositories.Common;
@@ -14,6 +15,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
                                                        IConfiguration configuration)
     {
+        services.AddConfigurations(configuration);
         services.AddGamesDbContext(configuration);
         services.AddRepositories();
 
@@ -39,6 +41,14 @@ public static class DependencyInjection
     {
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddConfigurations(this IServiceCollection services,
+                                                        IConfiguration configuration)
+    {
+        services.AddJwtConfiguration(configuration);
 
         return services;
     }

@@ -26,18 +26,12 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
                                                        IConfiguration configuration)
     {
+        services.AddConfigurations(configuration);
         services.AddUsersDbContext(configuration);
-
         services.AddRepositories();
-
-        services.AddConfigurationForServices(configuration);
-
         services.AddServices();
-
         services.AddMediatRConfiguration();
-
         services.AddSecurity();
-
         services.AddValidators();
 
         return services;
@@ -106,7 +100,7 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddConfigurationForServices(this IServiceCollection services,
+    private static IServiceCollection AddConfigurations(this IServiceCollection services,
                                                                   IConfiguration configuration)
     {
         services.AddJwtAuthenticationConfiguration(configuration);
