@@ -12,7 +12,7 @@ using MediatR;
 
 namespace Chess.Application.Features.Games.Commands.PromotePawn;
 
-public record PromotePawnCommand(PawnPromotionRequest Promotion, int PlayerId, string? PlayerName)
+public record PromotePawnCommand(PawnPromotionRequest Promotion, Guid PlayerId, string? PlayerName)
     : IRequest<GameCommandResult>;
 
 public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
@@ -67,7 +67,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             FenBeforeMove = promoteResponse.Fen
         };
 
-        promoteResponse = await _movementService.HandleMove(computerMoveRequest, 0, token);
+        promoteResponse = await _movementService.HandleMove(computerMoveRequest, request.PlayerId, token);
 
         var legalMoves = _movementService.GetLegalMoves(promoteResponse.Fen);
         gameCondition = _movementService.GetGameCondition(board, legalMoves);

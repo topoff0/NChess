@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Chess.Application.Features.Games.Commands.StartGame;
 
-public record StartGameCommand(int PlayerId, bool IsPlayerPlayWhite)
+public record StartGameCommand(Guid PlayerId, bool IsPlayerPlayWhite)
     : IRequest<GameResponse>;
 
 public sealed class StartGameCommandHandler(IGameRepository gameRepository,
@@ -53,7 +53,7 @@ public sealed class StartGameCommandHandler(IGameRepository gameRepository,
             Moves = [],
             IsActiveGame = true,
             FirstPlayerId = request.PlayerId,
-            SecondPlayerId = 0
+            SecondPlayerId = null
         };
 
         await _gameRepository.AddAsync(newGame, token);
@@ -74,8 +74,9 @@ public sealed class StartGameCommandHandler(IGameRepository gameRepository,
                 FenBeforeMove = fen
             };
 
-            OnMoveResponse moveResponse = await _movementService.HandleMove(computerMoveRequest, 0, token);
+            OnMoveResponse moveResponse = await _movementService.HandleMove(computerMoveRequest, request.PlayerId, token);
             fen = moveResponse.Fen;
+            moveNotations = moveResponse.MoveNotations;
         }
 
         var legalMovesAfterStart = _movementService.GetLegalMoves(fen);

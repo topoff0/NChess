@@ -7,7 +7,7 @@ namespace Chess.Core.Entities
         public required List<string> Moves { get; set; }
         public bool IsActiveGame { get; set; } = true;
 
-        public int FirstPlayerId { get; set; }
-        public int SecondPlayerId { get; set; }
+        public Guid FirstPlayerId { get; set; }
+        public Guid? SecondPlayerId { get; set; }
     }
 }

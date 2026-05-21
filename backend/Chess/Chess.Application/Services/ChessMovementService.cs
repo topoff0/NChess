@@ -108,7 +108,7 @@ namespace Chess.Application.Services
             };
         }
 
-        public async Task<OnMoveResponse> HandleMove(MoveRequest request, int playerId, CancellationToken token)
+        public async Task<OnMoveResponse> HandleMove(MoveRequest request, Guid playerId, CancellationToken token)
         {
             Board board = FenUtility.LoadBoardFromFen(request.FenBeforeMove);
             char movingPieceSymbol = SquaresHelper.GetPieceSymbolFromSquare(board, request.StartSquare).GetValueOrDefault();
@@ -160,7 +160,7 @@ namespace Chess.Application.Services
             return null;
         }
 
-        public async Task<OnMoveResponse> HandlePawnPromotion(PawnPromotionRequest request, int playerId, CancellationToken token)
+        public async Task<OnMoveResponse> HandlePawnPromotion(PawnPromotionRequest request, Guid playerId, CancellationToken token)
         {
             GameInfo? game = await _gameRepository.GetActiveByPlayerIdAsync(playerId, token);
             if (game == null)

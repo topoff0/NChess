@@ -12,7 +12,7 @@ using MediatR;
 
 namespace Chess.Application.Features.Games.Commands.MakeMove;
 
-public record MakeMoveCommand(MoveRequest Move, int PlayerId, string? PlayerName)
+public record MakeMoveCommand(MoveRequest Move, Guid PlayerId, string? PlayerName)
     : IRequest<GameCommandResult>;
 
 public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
@@ -79,7 +79,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 FenBeforeMove = moveResponse.Fen
             };
 
-            moveResponse = await _movementService.HandleMove(computerMoveRequest, 0, token);
+            moveResponse = await _movementService.HandleMove(computerMoveRequest, request.PlayerId, token);
         }
 
         var legalMoves = _movementService.GetLegalMoves(moveResponse.Fen);

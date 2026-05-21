@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Chess.API.Extensions;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses;
 using Chess.Application.Contracts.Responses.GameProcess;
@@ -34,8 +35,10 @@ namespace Chess.API.Controllers
         {
             try
             {
-                int firstPlayerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                StartGameCommand command = new(firstPlayerId, request.IsPlayerPlayWhite);
+                if(!User.TryGetUserId(out var playerId))
+                    return Unauthorized();
+
+                StartGameCommand command = new(playerId, request.IsPlayerPlayWhite);
                 GameResponse response = await _mediator.Send(command, token);
                 return Ok(response);
             }
@@ -55,7 +58,9 @@ namespace Chess.API.Controllers
         {
             try
             {
-                int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                if(!User.TryGetUserId(out var playerId))
+                    return Unauthorized();
+
                 string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
                 MakeMoveCommand command = new(request, playerId, playerName);
                 GameCommandResult result = await _mediator.Send(command, token);
@@ -85,7 +90,9 @@ namespace Chess.API.Controllers
         {
             try
             {
-                int playerId = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                if(!User.TryGetUserId(out var playerId))
+                    return Unauthorized();
+
                 string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
                 PromotePawnCommand command = new(request, playerId, playerName);
                 GameCommandResult result = await _mediator.Send(command, token);
