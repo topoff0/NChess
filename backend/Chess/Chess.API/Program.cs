@@ -16,6 +16,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddOpenApi();
 
 builder.Services.AddCustomSwagger();
+builder.Services.AddCustomCors();
 
 // ======================= APP ======================= 
 var app = builder.Build();
