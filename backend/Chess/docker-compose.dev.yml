@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: chess-postgres-dev
+    restart: unless-stopped
+    env_file:
+      - ./dev.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - chess_postgres_data:/var/lib/postgresql
+
+volumes:
+  chess_postgres_data:
