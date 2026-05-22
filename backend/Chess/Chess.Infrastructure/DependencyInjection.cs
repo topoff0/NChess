@@ -52,4 +52,14 @@ public static class DependencyInjection
 
         return services;
     }
+
+    // ================ APP ====================
+    
+    public static async Task ApplyMigrationsAsync(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<GamesDbContext>();
+        await context.Database.MigrateAsync();
+    }
 }

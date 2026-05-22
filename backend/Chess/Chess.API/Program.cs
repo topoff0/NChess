@@ -21,6 +21,8 @@ builder.Services.AddCustomCors();
 // ======================= APP ======================= 
 var app = builder.Build();
 
+await app.Services.ApplyMigrationsAsync();
+
 app.UseCustomSwagger(app.Environment);
 
 app.UseRouting();
