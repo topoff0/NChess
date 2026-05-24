@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:18
     container_name: chess-postgres-dev
     restart: unless-stopped
     env_file:
