@@ -8,4 +8,5 @@ public sealed class EmailOptions
     public required int Port { get; init; }
     public required string Email { get; init; }
     public required string Password { get; init; }
+    public bool UseFakeSender { get; init; }
 }

@@ -1,4 +1,5 @@
 ﻿using Account.Application.Behaviours;
+using Account.Application.Common.Configurations;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailAuthentication;
 using Account.Application.Features.Auth.Commands.Login;
@@ -29,7 +30,7 @@ public static class DependencyInjection
         services.AddConfigurations(configuration);
         services.AddUsersDbContext(configuration);
         services.AddRepositories();
-        services.AddServices();
+        services.AddServices(configuration);
         services.AddMediatRConfiguration();
         services.AddSecurity();
         services.AddValidators();
@@ -110,10 +111,19 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddServices(this IServiceCollection services,
+                                                  IConfiguration configuration)
     {
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-        services.AddScoped<IEmailSenderService, EmailSenderService>();
+
+        var emailOptions = configuration.GetSection(EmailOptions.EmailOptionsKey)
+                                        .Get<EmailOptions>();
+
+        if(emailOptions?.UseFakeSender == true)
+            services.AddScoped<IEmailSenderService, FakeEmailSenderService>();
+        else
+            services.AddScoped<IEmailSenderService, EmailSenderService>();
+
         services.AddScoped<IImageService, ImageService>();
 
         return services;
