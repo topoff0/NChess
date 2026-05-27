@@ -26,9 +26,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.Username)
             .IsUnique();
 
-        builder.Property(u => u.PasswordHash)
-            .HasMaxLength(512);
-
         builder.Property(u => u.ImagePath)
             .HasMaxLength(512);
 

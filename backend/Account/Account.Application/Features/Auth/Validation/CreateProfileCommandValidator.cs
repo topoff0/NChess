@@ -21,18 +21,6 @@ public class CreateProfileCommandValidator : AbstractValidator<CreateProfileComm
             .Length(3, 50)
             .WithMessage("Username length must be between 3 and 50");
 
-        RuleFor(x => x.Password)
-            .NotEmpty()
-            .WithMessage("Password field must not be empty")
-            .MinimumLength(8)
-            .WithMessage("Password length must be at least 8 characters");
-
-        RuleFor(x => x.ConfirmPassword)
-            .NotEmpty()
-            .WithMessage("ConfirmPassword field must not be empty")
-            .Equal(x => x.Password)
-            .WithMessage("Passwords do not match");
-
         RuleFor(x => x.ProfileImage)
             .Must(img => img == null || img.Length <= 5 * 1024 * 1024)
             .WithMessage("Profile image size must not exceed 5 MB");

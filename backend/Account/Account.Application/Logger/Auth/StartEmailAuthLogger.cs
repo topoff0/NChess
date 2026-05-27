@@ -2,7 +2,7 @@
 
 namespace Account.Application.Auth.Logger;
 
-public static partial class StartEmailAuthenticationLogger
+public static partial class StartEmailAuthLogger
 {
     [LoggerMessage(
         EventId = 1000,

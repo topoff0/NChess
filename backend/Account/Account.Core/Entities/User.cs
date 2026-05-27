@@ -19,7 +19,6 @@ public sealed class User
     public Guid Id { get; private set; }
     public string Email { get; private set; } = string.Empty;
     public string Username { get; private set; } = string.Empty;
-    public string PasswordHash { get; private set; } = string.Empty;
     public string ImagePath { get; private set; } = string.Empty;
 
     public AuthProvider Provider { get; private set; }
@@ -43,9 +42,8 @@ public sealed class User
             Status = UserStatus.Pending
         };
 
-    public void Activate(string username, string passwordHash, string imagePath)
+    public void Activate(string username, string imagePath)
     {
-        PasswordHash = passwordHash;
         Username = username;
         ImagePath = imagePath;
         Status = UserStatus.Active;

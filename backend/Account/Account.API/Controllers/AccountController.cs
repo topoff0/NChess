@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Account.API.DTOs;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailAuthentication;
-using Account.Application.Features.Auth.Commands.Login;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ public class AccountController(IMediator mediator)
     [HttpGet("health")]
     public async Task<IActionResult> CheckHealth()
     {
-        return Ok(new { status="health", timestamp = DateTime.UtcNow });
+        return Ok(new { status = "health", timestamp = DateTime.UtcNow });
     }
     [HttpPost("start-email-auth")]
     public async Task<IActionResult> StartEmailAuthentication(StartEmailAuthDto dto,
@@ -45,25 +44,12 @@ public class AccountController(IMediator mediator)
         var command = new VerifyEmailCommand(dto.Email, dto.VerificationCode);
         var result = await _mediator.Send(command, token);
 
-        if(!result.IsSuccess)
+        if (!result.IsSuccess)
             return BadRequest(result.Error);
 
         return Ok(result.Value);
     }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto dto,
-                                           CancellationToken token)
-    {
-        var command = new LoginCommand(dto.Email, dto.Password);
-        var result = await _mediator.Send(command, token);
-
-        if(!result.IsSuccess)
-            return BadRequest(result.Error);
-
-        return Ok(result.Value);
-    }
-    
     [Authorize]
     [HttpPost("create-profile")]
     public async Task<IActionResult> CreateProfile([FromForm] CreateProfileDto dto,
@@ -83,12 +69,10 @@ public class AccountController(IMediator mediator)
 
         var command = new CreateProfileCommand(imageBytes,
                                                email,
-                                               dto.Username,
-                                               dto.Password,
-                                               dto.ConfirmPassword);
+                                               dto.Username);
         var result = await _mediator.Send(command, token);
 
-        if(!result.IsSuccess)
+        if (!result.IsSuccess)
             return BadRequest(result.Error);
 
         return Ok(result.Value);

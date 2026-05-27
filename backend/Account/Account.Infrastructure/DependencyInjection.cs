@@ -2,7 +2,6 @@
 using Account.Application.Common.Configurations;
 using Account.Application.Features.Auth.Commands.CreateProfile;
 using Account.Application.Features.Auth.Commands.EmailAuthentication;
-using Account.Application.Features.Auth.Commands.Login;
 using Account.Application.Features.Auth.Validation;
 using Account.Application.Interfaces;
 using Account.Core.Repositories;
@@ -135,7 +134,6 @@ public static class DependencyInjection
         {
             cfg.RegisterServicesFromAssembly(typeof(StartEmailAuthCommand).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(VerifyEmailCommand).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(CreateProfileCommand).Assembly);
 
             cfg.AddOpenBehavior(typeof(ValidationPipelineBehaviour<,>));
@@ -146,7 +144,6 @@ public static class DependencyInjection
 
     private static IServiceCollection AddSecurity(this IServiceCollection services)
     {
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IVerificationCodeHasher, VerificationCodeHasher>();
         services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
 

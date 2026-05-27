@@ -2,7 +2,7 @@
 
 namespace Account.Application.Logger.Auth;
 
-public static partial class CreateProfileCommandHandler
+public static partial class CreateProfileLogger
 {
     [LoggerMessage(
         EventId = 1300,

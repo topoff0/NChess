@@ -6,7 +6,6 @@ using Account.Application.Logger.Auth;
 using Account.Core.Entities;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
-using Account.Core.Security;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -14,15 +13,12 @@ namespace Account.Application.Features.Auth.Commands.CreateProfile;
 
 public record CreateProfileCommand(byte[]? ProfileImage,
                                    string Email,
-                                   string Username,
-                                   string Password,
-                                   string ConfirmPassword)
+                                   string Username)
     : IRequest<ResultT<CreateProfileResult>>;
 
 public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
                                                 IPlayerRepository playerRepository,
                                                 IUnitOfWork unitOfWork,
-                                                IPasswordHasher passwordHasher,
                                                 ILogger<CreateProfileCommandHandler> logger,
                                                 IImageService imageService)
     : IRequestHandler<CreateProfileCommand, ResultT<CreateProfileResult>>
@@ -30,7 +26,6 @@ public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPlayerRepository _playerRepository = playerRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IPasswordHasher _passwordHasher = passwordHasher;
     private readonly IImageService _imageService = imageService;
     private readonly ILogger<CreateProfileCommandHandler> _logger = logger;
 
@@ -66,8 +61,7 @@ public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
                 imagePath = await _imageService.SaveProfileImageAsync(request.ProfileImage, token);
             }
 
-            var hashedPassword = _passwordHasher.Hash(request.Password);
-            user.Activate(request.Username, hashedPassword, imagePath);
+            user.Activate(request.Username, imagePath);
 
             var player = Player.Create(user.Id);
             await _playerRepository.AddAsync(player, token);
