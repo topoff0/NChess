@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace Account.Application.Features.Auth.Commands.EmailAuthentication;
 
 public record StartEmailAuthCommand(string Email)
-    : IRequest<ResultT<IsUserExistsAndActiveResult>>;
+    : IRequest<ResultT<StartEmailAuthResult>>;
 
 public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
                                                  IEmailVerificationCodeRepository codeRepository,
@@ -22,7 +22,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
                                                  IEmailSenderService emailService,
                                                  IVerificationCodeHasher codeHasher,
                                                  ILogger<StartEmailAuthCommandHandler> logger)
-    : IRequestHandler<StartEmailAuthCommand, ResultT<IsUserExistsAndActiveResult>>
+    : IRequestHandler<StartEmailAuthCommand, ResultT<StartEmailAuthResult>>
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IEmailVerificationCodeRepository _codeRepository = codeRepository;
@@ -31,22 +31,13 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
     private readonly IVerificationCodeHasher _codeHasher = codeHasher;
     private readonly ILogger<StartEmailAuthCommandHandler> _logger = logger;
 
-    public async Task<ResultT<IsUserExistsAndActiveResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
+    public async Task<ResultT<StartEmailAuthResult>> Handle(StartEmailAuthCommand request, CancellationToken token)
     {
         try
         {
             _logger.LogStartEmailAuthentication();
 
             bool isExists = await _userRepository.IsExistsByEmailAsync(request.Email, token);
-            if (isExists)
-            {
-                bool isActive = await _userRepository.IsActiveByEmailAsync(request.Email, token);
-                if (isActive)
-                {
-                    _logger.LogUserWithSuchEmailAlreadyExistsAndActive(request.Email);
-                    return ResultT<IsUserExistsAndActiveResult>.Success(new(true, true));
-                }
-            }
 
             string verificationCode = GenerateCode();
             var sendRequest = new SendEmailDto
@@ -78,7 +69,7 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
             await _unitOfWork.SaveChangesAsync(token);
 
             _logger.LogSuccessfulStartEmailAuth();
-            return ResultT<IsUserExistsAndActiveResult>.Success(new(isExists, false));
+            return ResultT<StartEmailAuthResult>.Success(new(IsCodeSent: true));
         }
         catch (Exception ex)
         {
