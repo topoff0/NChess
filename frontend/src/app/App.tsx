@@ -1,3 +1,6 @@
-export function App() {
-  return <></>;
+export const App = () => {
+  return (
+    <></>
+  )
 }
+

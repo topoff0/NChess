@@ -5,7 +5,7 @@ export function saveAccessToken(token: string) {
 }
 
 export function getAccessToken() {
-  localStorage.getItem(ACCESS_TOKEN_KEY);
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
 export function clearAccessToken() {
