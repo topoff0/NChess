@@ -1,6 +1,5 @@
-export const App = () => {
-  return (
-    <></>
-  )
-}
+import { AuthPage } from "@/features/auth/pages/AuthPage";
 
+export const App = () => {
+  return <AuthPage />;
+};
