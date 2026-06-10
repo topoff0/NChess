@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
-:root {
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: "Luckiest Guy", var(--font-body);
+@theme {
+  --font-body: "Fredoka", system-ui, sans-serif;
+  --font-display: "Fredoka", var(--font-body);
 
   --color-wood-dark: #8a5f41;
   --color-wood: #a77f60;
   --color-cream: #f3e4c9;
   --color-lime: #ccd67f;
 
-  --color-green-dark: #1f6f5f;
-  --color-green: #2fa084;
-  --color-green-light: #6fcf97;
-  --color-gray-light: #eeeeee;
+  --color-forest: #102a24;
+  --color-forest-soft: #183b32;
+  --color-moss: #2fa084;
+  --color-mint: #6fcf97;
+  --color-fog: #eeeeee;
+}
 
+:root {
   font-family: var(--font-body);
+  color: var(--color-fog);
+  background: var(--color-forest);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -36,6 +41,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  background: var(--color-forest);
 }
 
 #root {
