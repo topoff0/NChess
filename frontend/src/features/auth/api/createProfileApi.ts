@@ -1,16 +1,16 @@
 import { API_BASE_URLS } from "@/shared/api/httpClient";
 import { getAccessToken } from "@/shared/auth/tokenStorage";
 
-type createProfileRequest = {
+type CreateProfileRequest = {
   username: string;
   profileImage: File | null;
 };
 
-type createProfileResponse = {
+type CreateProfileResponse = {
   isCreated: boolean;
 };
 
-export async function createProfile(request: createProfileRequest): Promise<createProfileResponse> {
+export async function createProfile(request: CreateProfileRequest): Promise<CreateProfileResponse> {
   const token = getAccessToken();
 
   if (!token) {
