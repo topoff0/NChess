@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>NChess logo</title>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="#F3E4C9" stroke="#5B3A24" stroke-width="4" />
+  <path d="M3 46C13 38 22 42 32 47C43 52 53 48 61 41V61H3V46Z" fill="#2FA084" />
+  <path
+    d="M24 52H40L44 58H20L24 52ZM24 40H40L42 52H22L24 40ZM25 31C25 26.6 28.1 23 32 23C35.9 23 39 26.6 39 31V40H25V31Z"
+    fill="#8A5F41"
+    stroke="#5B3A24"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+  <circle cx="32" cy="18" r="7" fill="#8A5F41" stroke="#5B3A24" stroke-width="2.5" />
+  <text
+    x="32"
+    y="38"
+    text-anchor="middle"
+    font-family="system-ui, sans-serif"
+    font-size="13"
+    font-weight="800"
+    fill="#F3E4C9"
+  >
+    N
+  </text>
+</svg>
