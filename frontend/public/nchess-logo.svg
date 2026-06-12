@@ -1,24 +1,10 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="230" height="230" viewBox="0 0 230 230" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>NChess logo</title>
-  <rect x="3" y="3" width="58" height="58" rx="14" fill="#F3E4C9" stroke="#5B3A24" stroke-width="4" />
-  <path d="M3 46C13 38 22 42 32 47C43 52 53 48 61 41V61H3V46Z" fill="#2FA084" />
+
+  <rect x="34" y="34" width="162" height="162" rx="58" fill="#FFF7E6" />
   <path
-    d="M24 52H40L44 58H20L24 52ZM24 40H40L42 52H22L24 40ZM25 31C25 26.6 28.1 23 32 23C35.9 23 39 26.6 39 31V40H25V31Z"
+    d="M72 105C72 98 80 94 85 100L101 120L112 85C114 78 124 78 126 85L137 120L153 100C158 94 166 98 166 105V150C166 160 160 166 150 166H88C78 166 72 160 72 150V105Z"
     fill="#8A5F41"
-    stroke="#5B3A24"
-    stroke-width="2.5"
-    stroke-linejoin="round"
   />
-  <circle cx="32" cy="18" r="7" fill="#8A5F41" stroke="#5B3A24" stroke-width="2.5" />
-  <text
-    x="32"
-    y="38"
-    text-anchor="middle"
-    font-family="system-ui, sans-serif"
-    font-size="13"
-    font-weight="800"
-    fill="#F3E4C9"
-  >
-    N
-  </text>
+  <rect x="78" y="156" width="82" height="16" rx="8" fill="#5B3A24" fill-opacity="0.22" />
 </svg>
