@@ -11,6 +11,8 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const profileImagePreviewUrl = profileImage ? URL.createObjectURL(profileImage) : null;
+
   const handleCreateProfile = async () => {
     setError(null);
     setIsLoading(true);
@@ -48,9 +50,14 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
         />
         <label
           className="mx-auto flex aspect-square w-32 cursor-pointer items-center justify-center
+          overflow-hidden
           rounded-2xl border-4 border-wood-dark bg-fog text-center text-sm font-black text-wood-dark"
           htmlFor="profileImage">
-          Profile image
+          {profileImagePreviewUrl ? (
+            <img className="h-full w-full object-cover" src={profileImagePreviewUrl} alt="Selected profile" />
+          ) : (
+            "Profile image"
+          )}
         </label>
         <input
           className="sr-only"
