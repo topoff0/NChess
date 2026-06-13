@@ -62,12 +62,11 @@ export const AuthPage = () => {
       <section className="relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col justify-center items-center">
         <div className="relative inline-flex items-end gap-3">
           <h1 className="text-6xl font-bold text-wood-dark">NChess</h1>
-
           <span className="-mb-1 text-7xl leading-none text-wood/35" aria-hidden="true">
             ♟
           </span>
         </div>
-        <p className="mt-4 max-w-xs text-base leading-7 text-wood-dark/75">Enter your email and start your journey</p>
+        <p className="mt-4 max-w-xs text-base leading-7 text-wood-dark/75">Enter email and start your journey</p>
 
         <div className="w-full mt-10 rounded-3xl border-4 border-wood-dark bg-cream p-5">
           {step === "email" && (
