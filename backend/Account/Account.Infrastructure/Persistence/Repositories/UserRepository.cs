@@ -43,11 +43,6 @@ public class UserRepository(UsersDbContext context) : IUserRepository
                 rt.Expires > DateTime.UtcNow, token);
     }
 
-    public async Task<bool> IsActiveByEmailAsync(string email, CancellationToken token = default)
-    {
-        return await _context.Users.AnyAsync(u => u.Email == email && u.Status == UserStatus.Active, token);
-    }
-
     public async Task<bool> IsExistsByEmailAsync(string email, CancellationToken token = default)
     {
         return await _context.Users.AnyAsync(u => u.Email == email, token);

@@ -31,8 +31,8 @@ public static partial class CreateProfileLogger
     [LoggerMessage(
         EventId = 1304,
         Level = LogLevel.Information,
-        Message = "Successful create account")]
-    public static partial void LogSuccessfulCreateAccount(this ILogger logger);
+        Message = "Successful create profile")]
+    public static partial void LogSuccessfulCreateProfile(this ILogger logger);
 
     [LoggerMessage(
         EventId = 1398,

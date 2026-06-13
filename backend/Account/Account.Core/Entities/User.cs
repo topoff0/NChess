@@ -6,23 +6,16 @@ public enum AuthProvider
     Google = 2,
 }
 
-public enum UserStatus
-{
-    Pending,
-    Active
-}
-
 public sealed class User
 {
     private const int MaxActiveRefreshToken = 5;
 
     public Guid Id { get; private set; }
     public string Email { get; private set; } = string.Empty;
-    public string Username { get; private set; } = string.Empty;
+    public string? Username { get; private set; } = null;
     public string ImagePath { get; private set; } = string.Empty;
 
     public AuthProvider Provider { get; private set; }
-    public UserStatus Status { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
@@ -33,22 +26,25 @@ public sealed class User
     private User() { }
 
 
-    public static User CreatePending(string email, AuthProvider provider)
+    public static User Create(string email, AuthProvider provider)
         => new()
         {
             Id = Guid.NewGuid(),
             Email = email,
             Provider = provider,
-            Status = UserStatus.Pending
+            CreatedAt = DateTime.UtcNow,
         };
 
-    public void Activate(string username, string imagePath)
+    public void CreateProfile(string username, string imagePath)
     {
         Username = username;
         ImagePath = imagePath;
-        Status = UserStatus.Active;
-        CreatedAt = DateTime.UtcNow;
         LastLoginAt = DateTime.UtcNow;
+    }
+
+    public bool IsProfileCreated()
+    {
+        return !string.IsNullOrWhiteSpace(Username);
     }
 
     public void UpdateLastLoginTime()

@@ -17,22 +17,10 @@ public static partial class StartEmailAuthLogger
     public static partial void LogEmailValidationError(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 1002,
-        Level = LogLevel.Information,
-        Message = "User with email '{Email}' already exists and active")]
-    public static partial void LogUserWithSuchEmailAlreadyExistsAndActive(this ILogger logger, string email);
-
-    [LoggerMessage(
-        EventId = 1003,
-        Level = LogLevel.Information,
-        Message = "User with email '{Email}' already exists, but not active")]
-    public static partial void LogUserWithSuchEmailExistsButNotActive(this ILogger logger, string email);
-
-    [LoggerMessage(
         EventId = 1004,
         Level = LogLevel.Information,
-        Message = "User with email '{Email}' does not exists and not active")]
-    public static partial void LogUserWithSuchEmailNotExistsAndNotActive(this ILogger logger, string email);
+        Message = "User with email '{Email}' does not exists")]
+    public static partial void LogUserNotExists(this ILogger logger, string email);
 
     [LoggerMessage(
         EventId = 1005,
@@ -43,6 +31,6 @@ public static partial class StartEmailAuthLogger
     [LoggerMessage(
         EventId = 1099,
         Level = LogLevel.Critical,
-        Message = "An unexpected error occurred while processing start email autheticaiton command: {Message}")]
+        Message = "An unexpected error occurred while processing start email authentication command: {Message}")]
     public static partial void LogUnexpectedErrorStartEmailAuth(this ILogger logger, string message);
 }

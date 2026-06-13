@@ -20,7 +20,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique();
 
         builder.Property(u => u.Username)
-            .IsRequired()
             .HasMaxLength(128);
 
         builder.HasIndex(u => u.Username)
@@ -30,10 +29,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(512);
 
         builder.Property(u => u.Provider)
-            .HasConversion<int>()
-            .IsRequired();
-
-        builder.Property(u => u.Status)
             .HasConversion<int>()
             .IsRequired();
 

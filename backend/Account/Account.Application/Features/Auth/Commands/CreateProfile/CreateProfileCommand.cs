@@ -42,7 +42,7 @@ public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
                 return Error.NotFound(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
             }
 
-            if (user.Status == UserStatus.Active)
+            if (user.IsProfileCreated())
             {
                 _logger.LogProfileAlreadyCreated(request.Email);
                 return Error.Conflict(ErrorCodes.ProfileAlreadyCreated, ErrorMessages.ProfileAlreadyCreated);
@@ -61,14 +61,14 @@ public sealed class CreateProfileCommandHandler(IUserRepository userRepository,
                 imagePath = await _imageService.SaveProfileImageAsync(request.ProfileImage, token);
             }
 
-            user.Activate(request.Username, imagePath);
+            user.CreateProfile(request.Username, imagePath);
 
             var player = Player.Create(user.Id);
             await _playerRepository.AddAsync(player, token);
 
             await _unitOfWork.SaveChangesAsync(token);
 
-            _logger.LogSuccessfulCreateAccount();
+            _logger.LogSuccessfulCreateProfile();
 
             return ResultT<CreateProfileResult>.Success(new(IsCreated: true));
         }

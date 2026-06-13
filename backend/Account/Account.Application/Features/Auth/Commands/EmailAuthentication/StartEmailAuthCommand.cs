@@ -58,12 +58,8 @@ public sealed class StartEmailAuthCommandHandler(IUserRepository userRepository,
 
             if (!isExists)
             {
-                _logger.LogUserWithSuchEmailNotExistsAndNotActive(request.Email);
-                await _userRepository.AddAsync(User.CreatePending(request.Email, AuthProvider.Email), token);
-            }
-            else
-            {
-                _logger.LogUserWithSuchEmailExistsButNotActive(request.Email);
+                _logger.LogUserNotExists(request.Email);
+                await _userRepository.AddAsync(User.Create(request.Email, AuthProvider.Email), token);
             }
 
             await _unitOfWork.SaveChangesAsync(token);

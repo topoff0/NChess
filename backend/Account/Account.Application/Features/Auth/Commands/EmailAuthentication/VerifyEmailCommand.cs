@@ -3,7 +3,6 @@ using Account.Application.Common.Results;
 using Account.Application.Features.Auth.Results;
 using Account.Application.Interfaces;
 using Account.Application.Logger.Auth;
-using Account.Core.Entities;
 using Account.Core.Repositories;
 using Account.Core.Repositories.Common;
 using Account.Core.Security;
@@ -51,7 +50,7 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
         if (codeEntity.IsUsed)
         {
             _logger.LogVerificationCodeAlreadyUsed(request.VerificationCode, request.Email);
-            return Error.Failure(ErrorCodes.VerificationCodeAlreadyUsed, ErrorMessages.VerficaitonCodeAlreadyUsed);
+            return Error.Failure(ErrorCodes.VerificationCodeAlreadyUsed, ErrorMessages.VerificationCodeAlreadyUsed);
         }
 
         bool isCodeCorrect = _codeHasher.Verify(request.VerificationCode, codeEntity.HashedCode);
@@ -69,10 +68,11 @@ public sealed class VerifyEmailCommandHandler(IUserRepository userRepository,
         }
 
         codeEntity.UseCode();
+        user.UpdateLastLoginTime();
 
         await _unitOfWork.SaveChangesAsync(token);
 
-        bool profileRequired = user.Status != UserStatus.Active;
+        bool profileRequired = !user.IsProfileCreated();
         var jwtToken = _jwtService.GenerateAccessToken(user.Id, user.Email);
 
         _logger.LogSuccessfulEmailVerification(request.VerificationCode, request.Email);
