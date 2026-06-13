@@ -23,7 +23,7 @@ public static class JwtConfiguration
             .Validate(o => !string.IsNullOrWhiteSpace(o.Issuer), "JWT Issuer is required.")
             .Validate(o => !string.IsNullOrWhiteSpace(o.Audience), "JWT Audience is required.")
             .Validate(o => o.AccessTokenExpiryMinutes > 0, "Access token expiry must be positive.")
-            .Validate(o => o.RefreshTokenExpriryDays > 0, "Refresh token expiry must be positive.")
+            .Validate(o => o.RefreshTokenExpiryDays > 0, "Refresh token expiry must be positive.")
             .ValidateOnStart();
 
 

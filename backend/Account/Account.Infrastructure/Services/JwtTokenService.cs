@@ -72,7 +72,7 @@ public class JwtTokenService : IJwtTokenService
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomBytes);
 
-        return RefreshToken.Create(userId, _jwtOptions.RefreshTokenExpriryDays);
+        return RefreshToken.Create(userId, _jwtOptions.RefreshTokenExpiryDays);
     }
 
     public async Task<TokenValidationResult> ValidateTokenAsync(string token)
