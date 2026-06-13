@@ -1,9 +1,10 @@
 import { startEmailAuth, verifyEmail } from "@/features/auth/api/accountApi";
+import { CreateProfilePage } from "@/features/auth/pages/CreateProfilePage";
 import { saveAccessToken } from "@/shared/auth/tokenStorage";
 import { useState } from "react";
 
-type AuthStep = "email" | "code";
-type AuthStatus = "idle" | "loading" | "authenticated" | "profileRequired";
+type AuthStep = "email" | "code" | "createProfile";
+type AuthStatus = "idle" | "loading" | "authenticated";
 
 export const AuthPage = () => {
   const [step, setStep] = useState<AuthStep>("email");
@@ -39,7 +40,13 @@ export const AuthPage = () => {
       const result = await verifyEmail({ email, verificationCode });
 
       saveAccessToken(result.jwtToken);
-      setStatus(result.profileRequired ? "profileRequired" : "authenticated");
+      if (result.profileRequired) {
+        setStep("createProfile");
+        setStatus("idle");
+        return;
+      }
+
+      setStatus("authenticated");
     } catch {
       setError("Failed to verify email");
       setStatus("idle");
@@ -125,13 +132,13 @@ export const AuthPage = () => {
             </form>
           )}
 
-          {error && <p className="mt-4 text-sm font-bold text-red-700">{error}</p>}
+          {step === "createProfile" && status !== "authenticated" && (
+            <CreateProfilePage onCreated={() => setStatus("authenticated")} />
+          )}
 
           {status === "authenticated" && <p className="mt-4 text-sm font-bold text-moss">You are signed in.</p>}
 
-          {status === "profileRequired" && (
-            <p className="mt-4 text-sm font-bold text-moss">Create your profile next.</p>
-          )}
+          {error && <p className="mt-4 text-sm font-bold text-red-700">{error}</p>}
         </div>
       </section>
     </main>
