@@ -26,8 +26,12 @@ export const AuthPage = () => {
         setStep("code");
         setStatus("idle");
       }
-    } catch {
-      setError("Failed to send verification code");
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to send verification code");
+      }
       setStatus("idle");
     }
   };
@@ -47,8 +51,12 @@ export const AuthPage = () => {
       }
 
       setStatus("authenticated");
-    } catch {
-      setError("Failed to verify email");
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to verify email");
+      }
       setStatus("idle");
     }
   };

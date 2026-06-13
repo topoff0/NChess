@@ -1,3 +1,4 @@
+import { throwApiError } from "@/shared/api/apiError";
 import { API_BASE_URLS } from "@/shared/api/httpClient";
 
 type StartEmailAuthRequest = {
@@ -28,7 +29,7 @@ export async function startEmailAuth(request: StartEmailAuthRequest): Promise<St
   });
 
   if (!response.ok) {
-    throw new Error("Failed to start email authentication");
+    await throwApiError(response);
   }
 
   return response.json();
@@ -44,7 +45,7 @@ export async function verifyEmail(request: VerifyEmailRequest): Promise<VerifyEm
   });
 
   if (!response.ok) {
-    throw new Error("Failed to verify email");
+    await throwApiError(response);
   }
 
   return response.json();

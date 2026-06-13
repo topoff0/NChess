@@ -1,3 +1,4 @@
+import { throwApiError } from "@/shared/api/apiError";
 import { API_BASE_URLS } from "@/shared/api/httpClient";
 import { getAccessToken } from "@/shared/auth/tokenStorage";
 
@@ -33,7 +34,7 @@ export async function createProfile(request: CreateProfileRequest): Promise<Crea
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create profile");
+    await throwApiError(response);
   }
 
   return response.json();

@@ -23,8 +23,12 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
       if (result.isCreated) {
         onCreated();
       }
-    } catch {
-      setError("Failed to create profile");
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to create profile");
+      }
     } finally {
       setIsLoading(false);
     }
