@@ -1,5 +1,5 @@
 import { createProfile } from "@/features/auth/api/createProfileApi";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type CreateProfilePageProps = {
   onCreated: () => void;
@@ -11,7 +11,23 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const profileImagePreviewUrl = profileImage ? URL.createObjectURL(profileImage) : null;
+  const profileImagePreviewUrl = useMemo(() => {
+    if (!profileImage) {
+      return;
+    }
+
+    return URL.createObjectURL(profileImage);
+  }, [profileImage]);
+
+  useEffect(() => {
+    if (!profileImagePreviewUrl) {
+      return;
+    }
+
+    return () => {
+      URL.revokeObjectURL(profileImagePreviewUrl);
+    };
+  }, [profileImagePreviewUrl]);
 
   const handleCreateProfile = async () => {
     setError(null);
