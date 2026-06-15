@@ -1,10 +1,12 @@
 import { getCurrentUser } from "@/features/auth/api/accountApi";
+import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { AuthPage } from "@/features/auth/pages/AuthPage";
+import { CreateProfilePage } from "@/features/auth/pages/CreateProfilePage";
 import { GamePage } from "@/features/game/pages/GamePage";
 import { clearAccessToken, getAccessToken } from "@/shared/auth/tokenStorage";
 import { useEffect, useState } from "react";
 
-type AuthState = "checking" | "guest" | "authenticated";
+type AuthState = "checking" | "guest" | "profileRequired" | "authenticated";
 
 export const App = () => {
   const [authState, setAuthState] = useState<AuthState>(() => (getAccessToken() ? "checking" : "guest"));
@@ -23,8 +25,7 @@ export const App = () => {
           return;
         }
 
-        clearAccessToken();
-        setAuthState("guest");
+        setAuthState("profileRequired");
       } catch {
         clearAccessToken();
         setAuthState("guest");
@@ -44,6 +45,14 @@ export const App = () => {
 
   if (authState === "authenticated") {
     return <GamePage />;
+  }
+
+  if (authState === "profileRequired") {
+    return (
+      <AuthLayout>
+        <CreateProfilePage onCreated={() => setAuthState("authenticated")} />
+      </AuthLayout>
+    );
   }
 
   if (authState === "guest") {
