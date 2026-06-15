@@ -6,7 +6,11 @@ import { useState } from "react";
 type AuthStep = "email" | "code" | "createProfile";
 type AuthStatus = "idle" | "loading" | "authenticated";
 
-export const AuthPage = () => {
+type AuthPageProps = {
+  onAuthenticated: () => void;
+};
+
+export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
   const [step, setStep] = useState<AuthStep>("email");
   const [status, setStatus] = useState<AuthStatus>("idle");
   const [email, setEmail] = useState("");
@@ -51,6 +55,7 @@ export const AuthPage = () => {
       }
 
       setStatus("authenticated");
+      onAuthenticated();
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -141,7 +146,12 @@ export const AuthPage = () => {
           )}
 
           {step === "createProfile" && status !== "authenticated" && (
-            <CreateProfilePage onCreated={() => setStatus("authenticated")} />
+            <CreateProfilePage
+              onCreated={() => {
+                setStatus("authenticated");
+                onAuthenticated();
+              }}
+            />
           )}
 
           {status === "authenticated" && <p className="mt-4 text-sm font-bold text-moss">You are signed in.</p>}
