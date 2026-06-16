@@ -1,5 +1,5 @@
 import { createProfile } from "@/features/auth/api/createProfileApi";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type CreateProfilePageProps = {
   onCreated: () => void;
@@ -11,14 +11,47 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const profileImagePreviewUrl = profileImage ? URL.createObjectURL(profileImage) : null;
+  const profileImagePreviewUrl = useMemo(() => {
+    if (!profileImage) {
+      return;
+    }
+
+    return URL.createObjectURL(profileImage);
+  }, [profileImage]);
+
+  useEffect(() => {
+    if (!profileImagePreviewUrl) {
+      return;
+    }
+
+    return () => {
+      URL.revokeObjectURL(profileImagePreviewUrl);
+    };
+  }, [profileImagePreviewUrl]);
+
+  const trimmedUsername = username.trim();
+  const usernameValidationError =
+    trimmedUsername.length > 0 && (trimmedUsername.length < 3 || trimmedUsername.length > 50)
+      ? "Username must be between 3 and 50 characters"
+      : null;
+
+  const MaxProfileImageSizeInBytes = 5 * 1024 * 1024;
+  const profileImageValidationError =
+    profileImage && profileImage.size > MaxProfileImageSizeInBytes ? "Profile image size must no exceed 5MB" : null;
+
+  const canSubmitProfile = trimmedUsername.length > 0 && !usernameValidationError && !profileImageValidationError;
 
   const handleCreateProfile = async () => {
+    if (!canSubmitProfile) {
+      setError("Please fix validation errors");
+      return;
+    }
+
     setError(null);
     setIsLoading(true);
 
     try {
-      const result = await createProfile({ username, profileImage });
+      const result = await createProfile({ username: trimmedUsername, profileImage: profileImage });
 
       if (result.isCreated) {
         onCreated();
@@ -52,6 +85,7 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
           value={username}
           onChange={(event) => setUsername(event.target.value)}
         />
+        {usernameValidationError && <p className="text-sm font-bold text-red-700">{usernameValidationError}</p>}
         <label
           className="mx-auto flex aspect-square w-32 cursor-pointer items-center justify-center
           overflow-hidden
@@ -63,6 +97,7 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
             "Profile image"
           )}
         </label>
+        {profileImageValidationError && <p className="text-sm font-bold text-red-700">{profileImageValidationError}</p>}
         <input
           className="sr-only"
           id="profileImage"
@@ -72,9 +107,9 @@ export const CreateProfilePage = ({ onCreated }: CreateProfilePageProps) => {
         />
         <button
           className="w-full h-12 rounded-2xl border-4 border-wood-dark bg-lime
-          font-black text-wood-dark disabled:opacity-60"
+          font-bold text-wood-dark disabled:opacity-60"
           type="submit"
-          disabled={isLoading || username.trim().length === 0}>
+          disabled={isLoading || !canSubmitProfile}>
           {isLoading ? "Creating..." : "Create profile"}
         </button>
       </form>

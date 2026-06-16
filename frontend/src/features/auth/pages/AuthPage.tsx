@@ -11,6 +11,14 @@ type AuthPageProps = {
   onAuthenticated: () => void;
 };
 
+const isValidEmail = (value: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+};
+
+const isValidVerificationCode = (value: string) => {
+  return /^\d{6}$/.test(value);
+};
+
 export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
   const [step, setStep] = useState<AuthStep>("email");
   const [status, setStatus] = useState<AuthStatus>("idle");
@@ -20,12 +28,31 @@ export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
 
   const isLoading = status === "loading";
 
+  const trimmedEmail = email.trim();
+  const trimmedVerificationCode = verificationCode.trim();
+
+  const emailValidationError =
+    trimmedEmail.length > 0 && !isValidEmail(trimmedEmail) ? "Enter a valid email address" : null;
+
+  const verificationCodeValidationError =
+    trimmedVerificationCode.length > 0 && !isValidVerificationCode(trimmedVerificationCode)
+      ? "Verification code must be exactly 6 digits"
+      : null;
+
+  const canSubmitEmail = trimmedEmail.length > 0 && !emailValidationError;
+  const canSubmitVerificationCode = trimmedVerificationCode.length > 0 && !verificationCodeValidationError;
+
   const handleStartEmailAuth = async () => {
+    if (!canSubmitEmail) {
+      setError("Enter a valid email address");
+      return;
+    }
+
     setError(null);
     setStatus("loading");
 
     try {
-      const result = await startEmailAuth({ email });
+      const result = await startEmailAuth({ email: trimmedEmail });
 
       if (result.isCodeSent) {
         setStep("code");
@@ -42,11 +69,16 @@ export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
   };
 
   const handleVerifyEmail = async () => {
+    if (!canSubmitVerificationCode) {
+      setError("VerificationCode must be exactly 6 digits");
+      return;
+    }
+
     setError(null);
     setStatus("loading");
 
     try {
-      const result = await verifyEmail({ email, verificationCode });
+      const result = await verifyEmail({ email: trimmedEmail, verificationCode: trimmedVerificationCode });
 
       saveAccessToken(result.jwtToken);
       if (result.profileRequired) {
@@ -87,11 +119,12 @@ export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
+          {emailValidationError && <p className="text-sm font-bold text-red-700">{emailValidationError}</p>}
 
           <button
             className="h-12 w-full rounded-2xl border-4 border-wood-dark bg-lime font-black text-wood-dark disabled:opacity-60"
             type="submit"
-            disabled={isLoading || email.trim().length === 0}>
+            disabled={isLoading || !canSubmitEmail}>
             {isLoading ? "Sending..." : "Send code"}
           </button>
         </form>
@@ -115,11 +148,14 @@ export const AuthPage = ({ onAuthenticated }: AuthPageProps) => {
             value={verificationCode}
             onChange={(event) => setVerificationCode(event.target.value)}
           />
+          {verificationCodeValidationError && (
+            <p className="text-sm font-bold text-red-700">{verificationCodeValidationError}</p>
+          )}
 
           <button
             className="h-12 w-full rounded-2xl border-4 border-wood-dark bg-lime font-black text-wood-dark disabled:opacity-60"
             type="submit"
-            disabled={isLoading || verificationCode.trim().length === 0}>
+            disabled={isLoading || !canSubmitVerificationCode}>
             {isLoading ? "Checking..." : "Play"}
           </button>
         </form>

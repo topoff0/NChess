@@ -35,6 +35,11 @@ export const App = () => {
     void checkCurrentUser();
   }, [authState]);
 
+  const handleLogout = () => {
+    clearAccessToken();
+    setAuthState("guest");
+  }
+
   if (authState === "checking") {
     return (
       <main className="flex min-h-screen items-center justify-center bg-cream text-wood-dark">
@@ -44,7 +49,7 @@ export const App = () => {
   }
 
   if (authState === "authenticated") {
-    return <GamePage />;
+    return <GamePage onLogout={handleLogout} />;
   }
 
   if (authState === "profileRequired") {
