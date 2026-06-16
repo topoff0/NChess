@@ -1,6 +1,5 @@
-import { throwApiError } from "@/shared/api/apiError";
+import { apiAuthenticatedRequest, apiJsonRequest } from "@/shared/api/apiRequest";
 import { API_BASE_URLS } from "@/shared/api/httpClient";
-import { getAccessToken } from "@/shared/auth/tokenStorage";
 
 type StartEmailAuthRequest = {
   email: string;
@@ -29,54 +28,19 @@ export type CurrentUser = {
 };
 
 export async function startEmailAuth(request: StartEmailAuthRequest): Promise<StartEmailAuthResponse> {
-  const response = await fetch(`${API_BASE_URLS.account}/api/Account/start-email-auth`, {
+  return apiJsonRequest<StartEmailAuthResponse>(`${API_BASE_URLS.account}/api/Account/start-email-auth`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(request)
+    body: request
   });
-
-  if (!response.ok) {
-    await throwApiError(response);
-  }
-
-  return response.json();
 }
 
 export async function verifyEmail(request: VerifyEmailRequest): Promise<VerifyEmailResponse> {
-  const response = await fetch(`${API_BASE_URLS.account}/api/Account/verify-email`, {
+  return apiJsonRequest<VerifyEmailResponse>(`${API_BASE_URLS.account}/api/Account/verify-email`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(request)
+    body: request
   });
-
-  if (!response.ok) {
-    await throwApiError(response);
-  }
-
-  return response.json();
 }
 
 export async function getCurrentUser(): Promise<CurrentUser> {
-  const token = getAccessToken();
-
-  if (!token) {
-    throw new Error("Access token is missing");
-  }
-
-  const response = await fetch(`${API_BASE_URLS.account}/api/Account/me`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  if (!response.ok) {
-    await throwApiError(response);
-  }
-
-  return response.json();
+  return apiAuthenticatedRequest<CurrentUser>(`${API_BASE_URLS.account}/api/Account/me`);
 }
