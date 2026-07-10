@@ -8,7 +8,7 @@ export type BoardSquare = {
   isLight: boolean;
 };
 
-export const InitialBoardFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBNQKBNR";
+export const InitialBoardFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
 export const PieceSymbols: Record<FenPiece, string> = {
   p: "♟",
