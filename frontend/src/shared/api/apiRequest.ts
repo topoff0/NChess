@@ -5,6 +5,7 @@ type JsonRequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   headers?: HeadersInit;
+  signal?: AbortSignal;
 };
 
 type AuthenticatedRequestOptions = Omit<JsonRequestOptions, "headers"> & {
@@ -18,7 +19,8 @@ export async function apiJsonRequest<TResponse>(url: string, options: JsonReques
       "Content-Type": "application/json",
       ...options.headers
     },
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined
+    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    signal: options.signal
   });
 
   if (!response.ok) {
