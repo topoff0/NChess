@@ -4,6 +4,7 @@ export type BoardSquare = {
   key: string;
   rank: number;
   file: number;
+  square: number;
   piece: FenPiece | null;
   isLight: boolean;
 };
@@ -29,6 +30,10 @@ const isFenPiece = (value: string): value is FenPiece => {
   return value in PieceSymbols;
 };
 
+export const toSquareIndex = (square: Pick<BoardSquare, "rank" | "file">): number => {
+  return (7 - square.rank) * 8 + (7 - square.file);
+};
+
 export const parseFenBoard = (fen: string): BoardSquare[] => {
   const ranks = fen.split("/");
 
@@ -45,6 +50,7 @@ export const parseFenBoard = (fen: string): BoardSquare[] => {
             key: `${rankIndex}-${fileIndex}`,
             rank: rankIndex,
             file: fileIndex,
+            square: toSquareIndex({ rank: rankIndex, file: fileIndex }),
             piece: null,
             isLight: (rankIndex + fileIndex) % 2 == 0
           });
@@ -62,6 +68,7 @@ export const parseFenBoard = (fen: string): BoardSquare[] => {
         key: `${rankIndex}-${fileIndex}`,
         rank: rankIndex,
         file: fileIndex,
+        square: toSquareIndex({ rank: rankIndex, file: fileIndex }),
         piece: value,
         isLight: (rankIndex + fileIndex) % 2 == 0
       });
