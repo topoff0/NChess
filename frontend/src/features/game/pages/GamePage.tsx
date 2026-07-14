@@ -1,10 +1,12 @@
-import { InitialBoardSquares, PieceSymbols } from "@/features/game/lib/fen";
+import { ChessBoard } from "@/features/game/components/ChessBoard";
+import { useChessGame } from "@/features/game/hooks/useChessGame";
 
 type GamePageProps = {
   onLogout: () => void;
 };
 
 export const GamePage = ({ onLogout }: GamePageProps) => {
+  const { state, selectSquare } = useChessGame();
   return (
     <main className="min-h-screen bg-cream px-6 py-8 text-wood-dark">
       <header className="mx-auto flex max-w-5xl items-center justify-between">
@@ -20,20 +22,19 @@ export const GamePage = ({ onLogout }: GamePageProps) => {
       </header>
 
       <section className="mx-auto mt-10 max-w-5xl">
-        <div className="mx-auto grid aspect-square w-full max-w-xl grid-cols-8 overflow-hidden rounded-2xl border-4 border-wood-dark">
-          {InitialBoardSquares.map((square) => (
-            <div
-              className={`flex aspect-square items-center justify-center text-3xl font-bold sm:text-5xl
-              ${square.isLight ? "bg-cream" : "bg-wood"}`}
-              key={square.key}>
-              {square.piece && (
-                <span className={square.piece === square.piece.toUpperCase() ? "text-fog" : "text-forest"}>
-                  {PieceSymbols[square.piece]}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+        {state.status === "loading" && <p className="text-xl font-black">Loading game...</p>}
+        {state.status === "error" && <p className="text-sm font-bold text-red-700">{state.message}</p>}
+        {state.status === "ready" && (
+          <>
+            <ChessBoard
+              fen={state.fen}
+              legalMoves={state.legalMoves}
+              selectedSquare={state.selectedSquare}
+              onSquareClick={selectSquare}
+            />
+            {state.moveError && <p className="mt-4 text-sm font-bold text-red-700">{state.moveError}</p>}
+          </>
+        )}
       </section>
     </main>
   );
