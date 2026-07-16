@@ -1,4 +1,5 @@
-import { parseFenBoard, PieceSymbols } from "@/features/game/lib/fen";
+import { PieceImages } from "@/features/game/assets/pieces/pieceImages";
+import { parseFenBoard } from "@/features/game/lib/fen";
 import { useMemo } from "react";
 
 type ChessBoardProps = {
@@ -31,6 +32,7 @@ export const ChessBoard = ({ fen, legalMoves, selectedSquare, onSquareClick }: C
       {board.map((square) => {
         const isSelected = square.square === selectedSquare;
         const isLegalTarget = legalTargets.includes(square.square);
+        const isPawn = square.piece?.toLowerCase() === "p";
 
         return (
           <button
@@ -41,9 +43,12 @@ export const ChessBoard = ({ fen, legalMoves, selectedSquare, onSquareClick }: C
             type="button"
             onClick={() => onSquareClick(square.square)}>
             {square.piece && (
-              <span className={square.piece === square.piece.toUpperCase() ? "text-fog" : "text-forest"}>
-                {PieceSymbols[square.piece]}
-              </span>
+              <img
+                className={`${isPawn ? "h-[65%] w-[65%]" : "h-[86%] w-[86%]"} object-contain`}
+                src={PieceImages[square.piece]}
+                alt=""
+                draggable={false}
+              />
             )}
             {isLegalTarget && <span aria-hidden="true" className="absolute h-3 w-3 rounded-full bg-moss/70" />}
           </button>
