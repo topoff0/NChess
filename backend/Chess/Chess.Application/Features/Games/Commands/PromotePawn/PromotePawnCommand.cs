@@ -2,9 +2,11 @@ using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Application.Features.Games.Common;
 using Chess.Application.Interfaces;
+using Chess.Core.Common;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Models;
+using Chess.Core.MoveNotation;
 using Chess.Core.Repositories;
 using Chess.Core.Repositories.Common;
 using Chess.Core.Search;
@@ -44,6 +46,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             }
 
             endedGame.IsActiveGame = false;
+            ApplyEndGameNotation(endedGame, promoteResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
             GameResponse endGameResponse = new(
@@ -70,6 +73,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
         promoteResponse = await _movementService.HandleMove(computerMoveRequest, request.PlayerId, token);
 
         var legalMoves = _movementService.GetLegalMoves(promoteResponse.Fen);
+        board = FenUtility.LoadBoardFromFen(promoteResponse.Fen);
         gameCondition = _movementService.GetGameCondition(board, legalMoves);
 
         if (gameCondition.HasValue)
@@ -81,6 +85,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             }
 
             endedGame.IsActiveGame = false;
+            ApplyEndGameNotation(endedGame, promoteResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
             GameResponse endGameResponse = new(
@@ -105,5 +110,23 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
             winner: null);
 
         return GameCommandResult.Success(response);
+    }
+
+    private static void ApplyEndGameNotation(GameInfo game, OnMoveResponse moveResponse, GameCondition gameCondition)
+    {
+        if (game.Moves.Count == 0)
+        {
+            return;
+        }
+
+        int lastMoveIndex = game.Moves.Count - 1;
+        string updatedMoveNotation = MoveNotation.ApplyEndGameNotation(game.Moves[lastMoveIndex], gameCondition);
+
+        game.Moves[lastMoveIndex] = updatedMoveNotation;
+
+        if (moveResponse.MoveNotations.Count > lastMoveIndex)
+        {
+            moveResponse.MoveNotations[lastMoveIndex] = updatedMoveNotation;
+        }
     }
 }
