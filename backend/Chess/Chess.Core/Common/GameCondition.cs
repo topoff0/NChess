@@ -1,4 +1,4 @@
-namespace Chess.Application.Features.Games.Common;
+namespace Chess.Core.Common;
 
 public enum GameCondition
 {

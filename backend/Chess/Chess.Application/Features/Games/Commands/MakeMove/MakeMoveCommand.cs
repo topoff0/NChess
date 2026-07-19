@@ -2,6 +2,7 @@ using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Application.Features.Games.Common;
 using Chess.Application.Interfaces;
+using Chess.Core.Common;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Models;

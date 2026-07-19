@@ -1,4 +1,5 @@
 using System.Text;
+using Chess.Core.Common;
 using Chess.Core.Helpers.Castling;
 using Chess.Core.Helpers.Squares;
 using Chess.Core.Movement.Generator;
@@ -12,7 +13,8 @@ namespace Chess.Core.MoveNotation
                                             bool isCapture,
                                             char? movingPieceSymbol = null,
                                             char? chosenPromotionPiece = null,
-                                            bool isItPromotionPawnMove = false)
+                                            bool isItPromotionPawnMove = false,
+                                            GameCondition? gameCondition = null)
     {
         public char MovingPieceSymbol { get; init; } = movingPieceSymbol.GetValueOrDefault();
         public int StartSquare { get; init; } = startSquare;
@@ -21,6 +23,7 @@ namespace Chess.Core.MoveNotation
         public bool IsCapture { get; init; } = isCapture;
         public bool IsItPromotionPawnMove { get; init; } = isItPromotionPawnMove;
         public char? ChosenPromotionPieceSymbol { get; init; } = chosenPromotionPiece;
+        public GameCondition? GameCondition { get; init; } = gameCondition;
     }
 
     public static class MoveNotation
@@ -32,20 +35,23 @@ namespace Chess.Core.MoveNotation
                                                    request.TargetSquare,
                                                    request.Board,
                                                    request.ChosenPromotionPieceSymbol.Value,
-                                                   request.IsCapture);
+                                                   request.IsCapture,
+                                                   request.GameCondition);
             else
                 return GenerateRegularMoveNotation(request.MovingPieceSymbol,
                                                    request.StartSquare,
                                                    request.TargetSquare,
                                                    request.Board,
-                                                   request.IsCapture);
+                                                   request.IsCapture,
+                                                   request.GameCondition);
         }
 
         private static string GenerateRegularMoveNotation(char movingPieceSymbol,
                                                           int startSquare,
                                                           int targetSquare,
                                                           Board board,
-                                                          bool isCapture)
+                                                          bool isCapture,
+                                                          GameCondition? gameCondition)
         {
             StringBuilder moveNotationSB = new();
 
@@ -71,21 +77,28 @@ namespace Chess.Core.MoveNotation
                     moveNotationSB.Append(value);
                 else moveNotationSB.Append("[unknown_square]");
 
+                if (gameCondition == GameCondition.Lose)
+                {
+                    moveNotationSB.Append('#');
+                }
                 // Append '+' if king under attack
-                if (KingMovement.IsKingUnderAttack(board))
+                else if (KingMovement.IsKingUnderAttack(board))
                 {
                     moveNotationSB.Append('+');
                 }
             }
-            // TODO implement end game notation
+
+            AppendEndGameNotation(moveNotationSB, gameCondition);
 
             return moveNotationSB.ToString();
         }
 
         private static string GeneratePromotePawnNotation(int startSquare,
-                                                          int targetSquare,Board board,
+                                                          int targetSquare,
+                                                          Board board,
                                                           char chosenPromotionPiece,
-                                                          bool isCapture)
+                                                          bool isCapture,
+                                                          GameCondition? gameCondition)
         {
             StringBuilder moveNotationSB = new();
 
@@ -98,14 +111,28 @@ namespace Chess.Core.MoveNotation
             moveNotationSB.Append(SquaresHelper.SquareIndexToStringSquare[targetSquare]);
             moveNotationSB.Append($"={chosenPromotionPiece}");
 
+            if (gameCondition == GameCondition.Lose)
+            {
+                moveNotationSB.Append('#');
+            }
             // Append '+' if king under attack
-            if (KingMovement.IsKingUnderAttack(board))
+            else if (KingMovement.IsKingUnderAttack(board))
             {
                 moveNotationSB.Append('+');
             }
 
-            // TODO implement end game notation
+            AppendEndGameNotation(moveNotationSB, gameCondition);
+
             return moveNotationSB.ToString();
+        }
+
+        private static void AppendEndGameNotation(StringBuilder moveNotationSB,
+                                                  GameCondition? gameCondition)
+        {
+            if (gameCondition == GameCondition.Draw)
+            {
+                moveNotationSB.Append(" 1/2-1/2");
+            }
         }
     }
 }
