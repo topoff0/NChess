@@ -6,6 +6,7 @@ using Chess.Core.Common;
 using Chess.Core.Entities;
 using Chess.Core.FEN;
 using Chess.Core.Models;
+using Chess.Core.MoveNotation;
 using Chess.Core.Repositories;
 using Chess.Core.Repositories.Common;
 using Chess.Core.Search;
@@ -42,6 +43,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
             }
 
             endedGame.IsActiveGame = false;
+            ApplyEndGameNotation(endedGame, moveResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
             GameResponse endGameResponse = new(
@@ -96,6 +98,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
             }
 
             endedGame.IsActiveGame = false;
+            ApplyEndGameNotation(endedGame, moveResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
             GameResponse endGameResponse = new(
@@ -120,5 +123,23 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
             winner: null);
 
         return GameCommandResult.Success(response);
+    }
+
+    private static void ApplyEndGameNotation(GameInfo game, OnMoveResponse moveResponse, GameCondition gameCondition)
+    {
+        if (game.Moves.Count == 0)
+        {
+            return;
+        }
+
+        int lastMoveIndex = game.Moves.Count - 1;
+        string updatedMoveNotation = MoveNotation.ApplyEndGameNotation(game.Moves[lastMoveIndex], gameCondition);
+
+        game.Moves[lastMoveIndex] = updatedMoveNotation;
+
+        if (moveResponse.MoveNotations.Count > lastMoveIndex)
+        {
+            moveResponse.MoveNotations[lastMoveIndex] = updatedMoveNotation;
+        }
     }
 }

@@ -46,6 +46,25 @@ namespace Chess.Core.MoveNotation
                                                    request.GameCondition);
         }
 
+        public static string ApplyEndGameNotation(string moveNotation, GameCondition gameCondition)
+        {
+            if (gameCondition == GameCondition.Lose)
+            {
+                return moveNotation.EndsWith('+')
+                    ? $"{moveNotation[..^1]}#"
+                    : $"{moveNotation}#";
+            }
+
+            if (gameCondition == GameCondition.Draw)
+            {
+                return moveNotation.EndsWith(" 1/2-1/2", StringComparison.Ordinal)
+                    ? moveNotation
+                    : $"{moveNotation} 1/2-1/2";
+            }
+
+            return moveNotation;
+        }
+
         private static string GenerateRegularMoveNotation(char movingPieceSymbol,
                                                           int startSquare,
                                                           int targetSquare,
@@ -129,9 +148,12 @@ namespace Chess.Core.MoveNotation
         private static void AppendEndGameNotation(StringBuilder moveNotationSB,
                                                   GameCondition? gameCondition)
         {
-            if (gameCondition == GameCondition.Draw)
+            if (gameCondition.HasValue)
             {
-                moveNotationSB.Append(" 1/2-1/2");
+                string moveNotation = ApplyEndGameNotation(moveNotationSB.ToString(), gameCondition.Value);
+
+                moveNotationSB.Clear();
+                moveNotationSB.Append(moveNotation);
             }
         }
     }
