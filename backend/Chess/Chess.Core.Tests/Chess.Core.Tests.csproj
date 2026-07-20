@@ -22,9 +22,4 @@
     <ProjectReference Include="..\Chess.Core\Chess.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\Chess.API\magic_numbers_bishop.json" Link="magic_numbers_bishop.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\Chess.API\magic_numbers_rook.json" Link="magic_numbers_rook.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
 </Project>
