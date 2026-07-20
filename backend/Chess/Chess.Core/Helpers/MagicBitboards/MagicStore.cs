@@ -1,96 +1,62 @@
 using Chess.Core.Exceptions;
-using Chess.Core.Helpers.BitOperation;
 using System.Text.Json;
 
-namespace Chess.Core.Helpers.MagicBitboards
+namespace Chess.Core.Helpers.MagicBitboards;
+
+public static class MagicsStore
 {
-    public static class MagicsStore
+    private const string BishopMagicNumbersFilePath = "Resources/MagicBitboards/magic_numbers_bishop.json";
+    private const string RookMagicNumbersFilePath = "Resources/MagicBitboards/magic_numbers_rook.json";
+    private const int ExpectedMagicNumbersCount = 64;
+
+    private static readonly Dictionary<int, ulong> _magicNumbersBishop;
+    private static readonly Dictionary<int, ulong> _magicNumbersRook;
+
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
-        private static readonly JsonSerializerOptions JsonOptions = new()
+        WriteIndented = true
+    };
+
+
+    static MagicsStore()
+    {
+        _magicNumbersBishop = LoadMagicNumbers(BishopMagicNumbersFilePath);
+        _magicNumbersRook = LoadMagicNumbers(RookMagicNumbersFilePath);
+    }
+
+    public static ulong GetMagicNumberValue(int squareIndex, bool isRook)
+    {
+        Dictionary<int, ulong> magicNumbers = isRook ? _magicNumbersRook : _magicNumbersBishop;
+
+        return magicNumbers.TryGetValue(squareIndex, out ulong magicNumberValue)
+            ? magicNumberValue
+            : throw new MagicNumbersException($"Magic number for square {squareIndex} was not found");
+    }
+
+    public static Dictionary<int, ulong> LoadMagicNumbers(string filePath)
+    {
+        if (!File.Exists(filePath))
         {
-            WriteIndented = true
-        };
-
-        private static readonly string filePathBishop = "magic_numbers_bishop.json";
-        private static readonly string filePathRook = "magic_numbers_rook.json";
-
-        private static readonly Dictionary<int, ulong> _magicNumbersBishop;
-        private static readonly Dictionary<int, ulong> _magicNumbersRook;
-
-        static MagicsStore()
-        {
-            _magicNumbersBishop = LoadOrGenerateMagicNumbers(filePathBishop, false);
-            _magicNumbersRook = LoadOrGenerateMagicNumbers(filePathRook, true);
+            throw new MagicNumbersException($"Magic numbers file was not found: {filePath}");
         }
 
-        private static Dictionary<int, ulong> LoadOrGenerateMagicNumbers(string filePath, bool isRook)
+        string json = File.ReadAllText(filePath);
+        Dictionary<int, ulong>? dictionary = JsonSerializer.Deserialize<Dictionary<int, ulong>>(json)
+            ?? throw new MagicNumbersException($"Magic numbers file is invalid: {filePath}");
+
+        if (dictionary.Count != ExpectedMagicNumbersCount)
         {
-            try
-            {
-                return LoadMagicNumbers(filePath);
-            }
-            catch (MagicNumbersException ex)
-            {
-                Console.WriteLine($"[ERROR] {ex.Message}");
-
-                var magicNumbers = new Dictionary<int, ulong>();
-
-                for (int square = 0; square < 64; square++)
-                {
-                    Console.WriteLine($"square: {square}");
-                    ulong mask = isRook ? MagicBitboards.GenerateRookMask(square) 
-                                        : MagicBitboards.GenerateBishopMask(square);
-                    int relevantBits = BitHelper.BitsCount(mask);
-                    ulong magic = MagicGenerator.FindMagicNumber(square, mask, relevantBits, isRook);
-                    magicNumbers[square] = magic;
-                }
-
-                SaveMagicNumbers(filePath, magicNumbers);
-                return magicNumbers;
-            }
+            throw new MagicNumbersException(
+                $"Magic numbers file must contain {ExpectedMagicNumbersCount} values, but contains: {dictionary.Count}: {filePath}");
         }
 
-        public static ulong GetMagicNumberValue(int squareIndex, bool isRook)
-        {
-            if (isRook)
-            {
-                return _magicNumbersRook.TryGetValue(squareIndex, out var magicNumberValue) ? magicNumberValue : 0;
-            }
-            else
-            {
-                return _magicNumbersBishop.TryGetValue(squareIndex, out var magicNumberValue) ? magicNumberValue : 0;
-            }
-        }
+        return dictionary;
+    }
 
-        public static void SaveMagicNumbers(string filePath, Dictionary<int, ulong> magicNumbers)
-        {
-            try
-            {
-                string json = JsonSerializer.Serialize(magicNumbers, JsonOptions);
-                using (FileStream fs = File.Create(filePath)) { }
-                File.WriteAllText(filePath, json);
-                Console.WriteLine($"[INFO] Magic numbers successfully saved into file: {filePath}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ERROR] Error was occurred while saving magic numbers. Error message: {ex.Message}");
-            }
-        }
+    public static void SaveMagicNumbers(string filePath, Dictionary<int, ulong> magicNumbers)
+    {
+        string json = JsonSerializer.Serialize(magicNumbers, _jsonOptions);
 
-        public static Dictionary<int, ulong> LoadMagicNumbers(string filePath)
-        {
-            if (!File.Exists(filePath))
-                throw new MagicNumbersException("File of this path was not found. An error occurred in the LoadMagicNumbers().");
-            
-            string json = File.ReadAllText(filePath);
-            var dictionary = JsonSerializer.Deserialize<Dictionary<int, ulong>>(json);
-
-            if (dictionary == null)
-            {
-                throw new MagicNumbersException("Deserialized data is null. An error occurred in the LoadMagicNumbers().");
-            }
-
-            return dictionary;
-        }
+        File.WriteAllText(filePath, json);
     }
 }
