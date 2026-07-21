@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Chess.Core.Helpers.MagicBitboards;
 
-public static class MagicsStore
+public static class MagicStore
 {
     private const string BishopMagicNumbersFilePath = "Resources/MagicBitboards/magic_numbers_bishop.json";
     private const string RookMagicNumbersFilePath = "Resources/MagicBitboards/magic_numbers_rook.json";
@@ -17,8 +17,7 @@ public static class MagicsStore
         WriteIndented = true
     };
 
-
-    static MagicsStore()
+    static MagicStore()
     {
         _magicNumbersBishop = LoadMagicNumbers(BishopMagicNumbersFilePath);
         _magicNumbersRook = LoadMagicNumbers(RookMagicNumbersFilePath);
@@ -35,19 +34,21 @@ public static class MagicsStore
 
     public static Dictionary<int, ulong> LoadMagicNumbers(string filePath)
     {
-        if (!File.Exists(filePath))
+        string resolvedFilePath = ResolveMagicNumbersFilePath(filePath);
+
+        if (!File.Exists(resolvedFilePath))
         {
-            throw new MagicNumbersException($"Magic numbers file was not found: {filePath}");
+            throw new MagicNumbersException($"Magic numbers file was not found: {resolvedFilePath}");
         }
 
-        string json = File.ReadAllText(filePath);
+        string json = File.ReadAllText(resolvedFilePath);
         Dictionary<int, ulong>? dictionary = JsonSerializer.Deserialize<Dictionary<int, ulong>>(json)
-            ?? throw new MagicNumbersException($"Magic numbers file is invalid: {filePath}");
+            ?? throw new MagicNumbersException($"Magic numbers file is invalid: {resolvedFilePath}");
 
         if (dictionary.Count != ExpectedMagicNumbersCount)
         {
             throw new MagicNumbersException(
-                $"Magic numbers file must contain {ExpectedMagicNumbersCount} values, but contains: {dictionary.Count}: {filePath}");
+                $"Magic numbers file must contain {ExpectedMagicNumbersCount} values, but contains: {dictionary.Count}: {resolvedFilePath}");
         }
 
         return dictionary;
@@ -58,5 +59,15 @@ public static class MagicsStore
         string json = JsonSerializer.Serialize(magicNumbers, _jsonOptions);
 
         File.WriteAllText(filePath, json);
+    }
+
+    private static string ResolveMagicNumbersFilePath(string filePath)
+    {
+        if (Path.IsPathRooted(filePath) || File.Exists(filePath))
+        {
+            return filePath;
+        }
+
+        return Path.Combine(AppContext.BaseDirectory, filePath);
     }
 }

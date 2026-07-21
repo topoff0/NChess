@@ -22,7 +22,7 @@ public static class MagicBitboards
             // Initialize bishop lookup table
             ulong mask = GenerateBishopMask(sq);
             int relevantBits = BitHelper.BitsCount(mask);
-            ulong magic = MagicsStore.GetMagicNumberValue(sq, false);
+            ulong magic = MagicStore.GetMagicNumberValue(sq, false);
 
             int attackTableSize = 1 << relevantBits;
             ulong[] attackTable = new ulong[attackTableSize];
@@ -47,7 +47,7 @@ public static class MagicBitboards
             // Initialize rook lookup table
             mask = GenerateRookMask(sq);
             relevantBits = BitHelper.BitsCount(mask);
-            magic = MagicsStore.GetMagicNumberValue(sq, true);
+            magic = MagicStore.GetMagicNumberValue(sq, true);
 
             attackTableSize = 1 << relevantBits;
             attackTable = new ulong[attackTableSize];
