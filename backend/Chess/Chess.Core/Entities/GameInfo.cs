@@ -9,5 +9,8 @@ namespace Chess.Core.Entities
 
         public Guid FirstPlayerId { get; set; }
         public Guid? SecondPlayerId { get; set; }
+
+        public string? Result { get; set; }
+        public DateTime? FinishedAt { get; set; }
     }
 }

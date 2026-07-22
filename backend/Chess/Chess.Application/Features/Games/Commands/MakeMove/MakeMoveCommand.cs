@@ -42,7 +42,11 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 return GameCommandResult.GameNotFound();
             }
 
+            string? winner = gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW";
+
             endedGame.IsActiveGame = false;
+            endedGame.Result = winner;
+            endedGame.FinishedAt = DateTime.UtcNow;
             ApplyEndGameNotation(endedGame, moveResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -53,7 +57,7 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 legalMoves: null,
                 moveNotations: moveResponse.MoveNotations,
                 isGameEnded: true,
-                winner: gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW");
+                winner: winner);
 
             return GameCommandResult.Success(endGameResponse);
         }
@@ -97,7 +101,11 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 return GameCommandResult.GameNotFound();
             }
 
+            string winner = gameCondition.Value == GameCondition.Draw ? "DRAW" : "Computer";
+
             endedGame.IsActiveGame = false;
+            endedGame.Result = winner;
+            endedGame.FinishedAt = DateTime.UtcNow;
             ApplyEndGameNotation(endedGame, moveResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -105,10 +113,10 @@ public sealed class MakeMoveCommandHandler(IGameRepository gameRepository,
                 isSuccess: true,
                 message: "Game ended",
                 fen: moveResponse.Fen,
-                legalMoves: legalMoves,
+                legalMoves: null,
                 moveNotations: moveResponse.MoveNotations,
                 isGameEnded: true,
-                winner: gameCondition.Value == GameCondition.Draw ? "DRAW" : "Computer");
+                winner: winner);
 
             return GameCommandResult.Success(endGameResponse);
         }
