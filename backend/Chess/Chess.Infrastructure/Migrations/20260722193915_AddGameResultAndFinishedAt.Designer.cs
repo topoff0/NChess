@@ -10,58 +10,57 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Chess.Infrastructure.Migrations
+namespace Chess.Infrastructure.Migrations;
+
+[DbContext(typeof(GamesDbContext))]
+[Migration("20260722193915_AddGameResultAndFinishedAt")]
+partial class AddGameResultAndFinishedAt
 {
-    [DbContext(typeof(GamesDbContext))]
-    [Migration("20260722193915_AddGameResultAndFinishedAt")]
-    partial class AddGameResultAndFinishedAt
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+        modelBuilder
+            .HasAnnotation("ProductVersion", "10.0.8")
+            .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+        NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Chess.Core.Entities.GameInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+        modelBuilder.Entity("Chess.Core.Entities.GameInfo", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.PrimitiveCollection<List<string>>("Fens")
-                        .IsRequired()
-                        .HasColumnType("text[]");
+                b.PrimitiveCollection<List<string>>("Fens")
+                    .IsRequired()
+                    .HasColumnType("text[]");
 
-                    b.Property<DateTime?>("FinishedAt")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime?>("FinishedAt")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("FirstPlayerId")
-                        .HasColumnType("uuid");
+                b.Property<Guid>("FirstPlayerId")
+                    .HasColumnType("uuid");
 
-                    b.Property<bool>("IsActiveGame")
-                        .HasColumnType("boolean");
+                b.Property<bool>("IsActiveGame")
+                    .HasColumnType("boolean");
 
-                    b.PrimitiveCollection<List<string>>("Moves")
-                        .IsRequired()
-                        .HasColumnType("text[]");
+                b.PrimitiveCollection<List<string>>("Moves")
+                    .IsRequired()
+                    .HasColumnType("text[]");
 
-                    b.Property<string>("Result")
-                        .HasColumnType("text");
+                b.Property<string>("Result")
+                    .HasColumnType("text");
 
-                    b.Property<Guid?>("SecondPlayerId")
-                        .HasColumnType("uuid");
+                b.Property<Guid?>("SecondPlayerId")
+                    .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Games");
-                });
+                b.ToTable("Games");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

@@ -1,7 +1,6 @@
-namespace Chess.Application.Contracts.Requests
+namespace Chess.Application.Contracts.Requests;
+
+public class GameStartRequest(bool isPlayerPlayWhite)
 {
-    public class GameStartRequest(bool isPlayerPlayWhite)
-    {
-        public bool IsPlayerPlayWhite { get; set; } = isPlayerPlayWhite;
-    }
+    public bool IsPlayerPlayWhite { get; set; } = isPlayerPlayWhite;
 }

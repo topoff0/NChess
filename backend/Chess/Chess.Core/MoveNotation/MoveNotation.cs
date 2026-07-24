@@ -5,130 +5,96 @@ using Chess.Core.Helpers.Squares;
 using Chess.Core.Movement.Generator;
 using Chess.Core.Models;
 
-namespace Chess.Core.MoveNotation
+namespace Chess.Core.MoveNotation;
+
+public class GenerateMoveNotationRequest(int startSquare,
+                                        int targetSquare,
+                                        Board board,
+                                        bool isCapture,
+                                        char? movingPieceSymbol = null,
+                                        char? chosenPromotionPiece = null,
+                                        bool isItPromotionPawnMove = false,
+                                        GameCondition? gameCondition = null)
 {
-    public class GenerateMoveNotationRequest(int startSquare,
-                                            int targetSquare,
-                                            Board board,
-                                            bool isCapture,
-                                            char? movingPieceSymbol = null,
-                                            char? chosenPromotionPiece = null,
-                                            bool isItPromotionPawnMove = false,
-                                            GameCondition? gameCondition = null)
+    public char MovingPieceSymbol { get; init; } = movingPieceSymbol.GetValueOrDefault();
+    public int StartSquare { get; init; } = startSquare;
+    public int TargetSquare { get; init; } = targetSquare;
+    public Board Board { get; init; } = board;
+    public bool IsCapture { get; init; } = isCapture;
+    public bool IsItPromotionPawnMove { get; init; } = isItPromotionPawnMove;
+    public char? ChosenPromotionPieceSymbol { get; init; } = chosenPromotionPiece;
+    public GameCondition? GameCondition { get; init; } = gameCondition;
+}
+
+public static class MoveNotation
+{
+    public static string Generate(GenerateMoveNotationRequest request)
     {
-        public char MovingPieceSymbol { get; init; } = movingPieceSymbol.GetValueOrDefault();
-        public int StartSquare { get; init; } = startSquare;
-        public int TargetSquare { get; init; } = targetSquare;
-        public Board Board { get; init; } = board;
-        public bool IsCapture { get; init; } = isCapture;
-        public bool IsItPromotionPawnMove { get; init; } = isItPromotionPawnMove;
-        public char? ChosenPromotionPieceSymbol { get; init; } = chosenPromotionPiece;
-        public GameCondition? GameCondition { get; init; } = gameCondition;
+        if (request.IsItPromotionPawnMove && request.ChosenPromotionPieceSymbol.HasValue)
+            return GeneratePromotePawnNotation(request.StartSquare,
+                                               request.TargetSquare,
+                                               request.Board,
+                                               request.ChosenPromotionPieceSymbol.Value,
+                                               request.IsCapture,
+                                               request.GameCondition);
+        else
+            return GenerateRegularMoveNotation(request.MovingPieceSymbol,
+                                               request.StartSquare,
+                                               request.TargetSquare,
+                                               request.Board,
+                                               request.IsCapture,
+                                               request.GameCondition);
     }
 
-    public static class MoveNotation
+    public static string ApplyEndGameNotation(string moveNotation, GameCondition gameCondition)
     {
-        public static string Generate(GenerateMoveNotationRequest request)
+        if (gameCondition == GameCondition.Lose)
         {
-            if (request.IsItPromotionPawnMove && request.ChosenPromotionPieceSymbol.HasValue)
-                return GeneratePromotePawnNotation(request.StartSquare,
-                                                   request.TargetSquare,
-                                                   request.Board,
-                                                   request.ChosenPromotionPieceSymbol.Value,
-                                                   request.IsCapture,
-                                                   request.GameCondition);
-            else
-                return GenerateRegularMoveNotation(request.MovingPieceSymbol,
-                                                   request.StartSquare,
-                                                   request.TargetSquare,
-                                                   request.Board,
-                                                   request.IsCapture,
-                                                   request.GameCondition);
+            return moveNotation.EndsWith('+')
+                ? $"{moveNotation[..^1]}#"
+                : $"{moveNotation}#";
         }
 
-        public static string ApplyEndGameNotation(string moveNotation, GameCondition gameCondition)
+        if (gameCondition == GameCondition.Draw)
         {
-            if (gameCondition == GameCondition.Lose)
-            {
-                return moveNotation.EndsWith('+')
-                    ? $"{moveNotation[..^1]}#"
-                    : $"{moveNotation}#";
-            }
-
-            if (gameCondition == GameCondition.Draw)
-            {
-                return moveNotation.EndsWith(" 1/2-1/2", StringComparison.Ordinal)
-                    ? moveNotation
-                    : $"{moveNotation} 1/2-1/2";
-            }
-
-            return moveNotation;
+            return moveNotation.EndsWith(" 1/2-1/2", StringComparison.Ordinal)
+                ? moveNotation
+                : $"{moveNotation} 1/2-1/2";
         }
 
-        private static string GenerateRegularMoveNotation(char movingPieceSymbol,
-                                                          int startSquare,
-                                                          int targetSquare,
-                                                          Board board,
-                                                          bool isCapture,
-                                                          GameCondition? gameCondition)
+        return moveNotation;
+    }
+
+    private static string GenerateRegularMoveNotation(char movingPieceSymbol,
+                                                      int startSquare,
+                                                      int targetSquare,
+                                                      Board board,
+                                                      bool isCapture,
+                                                      GameCondition? gameCondition)
+    {
+        StringBuilder moveNotationSB = new();
+
+        bool isCastlingMove = CastleHelper.IsCastleMove(startSquare, targetSquare, board);
+
+        // Castle move
+        if (isCastlingMove)
         {
-            StringBuilder moveNotationSB = new();
-
-            bool isCastlingMove = CastleHelper.IsCastleMove(startSquare, targetSquare, board);
-
-            // Castle move
-            if (isCastlingMove)
-            {
-                moveNotationSB.Append(CastleHelper.IsKingCastle(startSquare, targetSquare) ? "O-O" : "O-O-O");
-            }
-            else // Regular move
-            {
-                moveNotationSB.Append(movingPieceSymbol);
-                // If it capture move append 'x'
-                if (isCapture)
-                    moveNotationSB.Append('x');
-            }
-
-            // Append target square if it's not castle
-            if (!isCastlingMove)
-            {
-                if (SquaresHelper.SquareIndexToStringSquare.TryGetValue(targetSquare, out var value))
-                    moveNotationSB.Append(value);
-                else moveNotationSB.Append("[unknown_square]");
-
-                if (gameCondition == GameCondition.Lose)
-                {
-                    moveNotationSB.Append('#');
-                }
-                // Append '+' if king under attack
-                else if (KingMovement.IsKingUnderAttack(board))
-                {
-                    moveNotationSB.Append('+');
-                }
-            }
-
-            AppendEndGameNotation(moveNotationSB, gameCondition);
-
-            return moveNotationSB.ToString();
+            moveNotationSB.Append(CastleHelper.IsKingCastle(startSquare, targetSquare) ? "O-O" : "O-O-O");
+        }
+        else // Regular move
+        {
+            moveNotationSB.Append(movingPieceSymbol);
+            // If it capture move append 'x'
+            if (isCapture)
+                moveNotationSB.Append('x');
         }
 
-        private static string GeneratePromotePawnNotation(int startSquare,
-                                                          int targetSquare,
-                                                          Board board,
-                                                          char chosenPromotionPiece,
-                                                          bool isCapture,
-                                                          GameCondition? gameCondition)
+        // Append target square if it's not castle
+        if (!isCastlingMove)
         {
-            StringBuilder moveNotationSB = new();
-
-            if (isCapture) // Append pawn file and symbol 'x' if it's capture move
-            {
-                char pawnFile = SquaresHelper.SquareIndexToStringSquare[startSquare][0];
-                moveNotationSB.Append($"{pawnFile}x");
-            }
-
-            moveNotationSB.Append(SquaresHelper.SquareIndexToStringSquare[targetSquare]);
-            moveNotationSB.Append($"={chosenPromotionPiece}");
+            if (SquaresHelper.SquareIndexToStringSquare.TryGetValue(targetSquare, out var value))
+                moveNotationSB.Append(value);
+            else moveNotationSB.Append("[unknown_square]");
 
             if (gameCondition == GameCondition.Lose)
             {
@@ -139,22 +105,55 @@ namespace Chess.Core.MoveNotation
             {
                 moveNotationSB.Append('+');
             }
-
-            AppendEndGameNotation(moveNotationSB, gameCondition);
-
-            return moveNotationSB.ToString();
         }
 
-        private static void AppendEndGameNotation(StringBuilder moveNotationSB,
-                                                  GameCondition? gameCondition)
-        {
-            if (gameCondition.HasValue)
-            {
-                string moveNotation = ApplyEndGameNotation(moveNotationSB.ToString(), gameCondition.Value);
+        AppendEndGameNotation(moveNotationSB, gameCondition);
 
-                moveNotationSB.Clear();
-                moveNotationSB.Append(moveNotation);
-            }
+        return moveNotationSB.ToString();
+    }
+
+    private static string GeneratePromotePawnNotation(int startSquare,
+                                                      int targetSquare,
+                                                      Board board,
+                                                      char chosenPromotionPiece,
+                                                      bool isCapture,
+                                                      GameCondition? gameCondition)
+    {
+        StringBuilder moveNotationSB = new();
+
+        if (isCapture) // Append pawn file and symbol 'x' if it's capture move
+        {
+            char pawnFile = SquaresHelper.SquareIndexToStringSquare[startSquare][0];
+            moveNotationSB.Append($"{pawnFile}x");
+        }
+
+        moveNotationSB.Append(SquaresHelper.SquareIndexToStringSquare[targetSquare]);
+        moveNotationSB.Append($"={chosenPromotionPiece}");
+
+        if (gameCondition == GameCondition.Lose)
+        {
+            moveNotationSB.Append('#');
+        }
+        // Append '+' if king under attack
+        else if (KingMovement.IsKingUnderAttack(board))
+        {
+            moveNotationSB.Append('+');
+        }
+
+        AppendEndGameNotation(moveNotationSB, gameCondition);
+
+        return moveNotationSB.ToString();
+    }
+
+    private static void AppendEndGameNotation(StringBuilder moveNotationSB,
+                                              GameCondition? gameCondition)
+    {
+        if (gameCondition.HasValue)
+        {
+            string moveNotation = ApplyEndGameNotation(moveNotationSB.ToString(), gameCondition.Value);
+
+            moveNotationSB.Clear();
+            moveNotationSB.Append(moveNotation);
         }
     }
 }
