@@ -10,5 +10,7 @@ public interface IGameRepository
 
     Task<GameInfo?> GetActiveByPlayerIdAsync(Guid playerId, CancellationToken token);
 
+    Task<List<GameInfo>> GetFinishedByPlayerIdAsync(Guid playerId, CancellationToken token);
+
     Task AddAsync(GameInfo game, CancellationToken token);
 }

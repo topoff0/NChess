@@ -45,7 +45,11 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                 return GameCommandResult.GameNotFound();
             }
 
+            string? winner = gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW";
+
             endedGame.IsActiveGame = false;
+            endedGame.Result = winner;
+            endedGame.FinishedAt = DateTime.UtcNow;
             ApplyEndGameNotation(endedGame, promoteResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -56,7 +60,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                 legalMoves: null,
                 moveNotations: promoteResponse.MoveNotations,
                 isGameEnded: true,
-                winner: gameCondition.Value == GameCondition.Lose ? request.PlayerName : "DRAW");
+                winner: winner);
 
             return GameCommandResult.Success(endGameResponse);
         }
@@ -84,7 +88,11 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                 return GameCommandResult.GameNotFound();
             }
 
+            string winner = gameCondition.Value == GameCondition.Draw ? "DRAW" : "Computer";
+
             endedGame.IsActiveGame = false;
+            endedGame.Result = winner;
+            endedGame.FinishedAt = DateTime.UtcNow;
             ApplyEndGameNotation(endedGame, promoteResponse, gameCondition.Value);
             await _unitOfWork.SaveChangesAsync(token);
 
@@ -95,7 +103,7 @@ public sealed class PromotePawnCommandHandler(IGameRepository gameRepository,
                 legalMoves: legalMoves,
                 moveNotations: promoteResponse.MoveNotations,
                 isGameEnded: true,
-                winner: gameCondition == GameCondition.Draw ? "DRAW" : "Computer");
+                winner: winner);
 
             return GameCommandResult.Success(endGameResponse);
         }

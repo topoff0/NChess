@@ -1,10 +1,9 @@
-namespace Chess.Application.Contracts.Requests
+namespace Chess.Application.Contracts.Requests;
+
+public class PawnPromotionRequest
 {
-    public class PawnPromotionRequest
-    {
-        public int StartSquare { get; set; }
-        public int TargetSquare { get; set; }
-        public required string FenBeforeMove { get; set; }
-        public char ChosenPiece { get; set; }
-    }
+    public int StartSquare { get; set; }
+    public int TargetSquare { get; set; }
+    public required string FenBeforeMove { get; set; }
+    public char ChosenPiece { get; set; }
 }
