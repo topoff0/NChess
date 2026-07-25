@@ -2,11 +2,13 @@ using System.Security.Claims;
 using Chess.API.Extensions;
 using Chess.Application.Contracts.Requests;
 using Chess.Application.Contracts.Responses;
+using Chess.Application.Contracts.Responses.GameHistory;
 using Chess.Application.Contracts.Responses.GameProcess;
 using Chess.Application.Features.Games.Commands.MakeMove;
 using Chess.Application.Features.Games.Commands.PromotePawn;
 using Chess.Application.Features.Games.Commands.StartGame;
 using Chess.Application.Features.Games.Common;
+using Chess.Application.Features.Games.Queries.GetFinishedGames;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +30,28 @@ public class ChessMovementController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("FinishedGames")]
+    [Authorize]
+    public async Task<IActionResult> GetFinishedGames(CancellationToken token)
+    {
+        try
+        {
+            if (!User.TryGetUserId(out var playerId))
+                return Unauthorized();
+
+            GetFinishedGamesQuery query = new(playerId);
+            GetFinishedGamesResponse response = await _mediator.Send(query, token);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical($"Exception while retrieving finished games: {ex.Message}");
+            GetFinishedGamesResponse response = new(
+                isSuccess: false, message: "Something went wrong while retrieving your games", games: []);
+            return BadRequest(response);
+        }
+    }
+
     [HttpPost("OnGameStart")]
     [Authorize]
     public async Task<IActionResult> OnGameStart([FromBody] GameStartRequest request,
@@ -35,7 +59,7 @@ public class ChessMovementController : ControllerBase
     {
         try
         {
-            if(!User.TryGetUserId(out var playerId))
+            if (!User.TryGetUserId(out var playerId))
                 return Unauthorized();
 
             StartGameCommand command = new(playerId, request.IsPlayerPlayWhite);
@@ -58,7 +82,7 @@ public class ChessMovementController : ControllerBase
     {
         try
         {
-            if(!User.TryGetUserId(out var playerId))
+            if (!User.TryGetUserId(out var playerId))
                 return Unauthorized();
 
             string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
@@ -90,7 +114,7 @@ public class ChessMovementController : ControllerBase
     {
         try
         {
-            if(!User.TryGetUserId(out var playerId))
+            if (!User.TryGetUserId(out var playerId))
                 return Unauthorized();
 
             string? playerName = User.FindFirst(ClaimTypes.Name)?.Value;
@@ -112,5 +136,5 @@ public class ChessMovementController : ControllerBase
             return BadRequest(response);
         }
 
-    } 
+    }
 }
