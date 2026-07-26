@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+<ItemGroup>
+  <None Include="Resources/MagicBitboards/magic_numbers_bishop.json" CopyToOutputDirectory="PreserveNewest" />
+  <None Include="Resources/MagicBitboards/magic_numbers_rook.json" CopyToOutputDirectory="PreserveNewest" />
+</ItemGroup>
+
 </Project>

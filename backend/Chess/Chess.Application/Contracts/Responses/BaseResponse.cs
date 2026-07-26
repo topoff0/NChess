@@ -1,17 +1,16 @@
 using System.Text.Json.Serialization;
 
-namespace Chess.Application.Contracts.Responses
+namespace Chess.Application.Contracts.Responses;
+
+public class BaseResponse
 {
-    public class BaseResponse
+    public BaseResponse(bool isSuccess, string message)
     {
-        public BaseResponse(bool isSuccess, string message)
-        {
-            IsSuccess = isSuccess;
-            ResponseMessage = message;
-        }
-        [JsonPropertyName("isSuccess")]
-        public bool IsSuccess { get; set; }
-        [JsonPropertyName("message")]
-        public string ResponseMessage { get; set; }
+        IsSuccess = isSuccess;
+        ResponseMessage = message;
     }
+    [JsonPropertyName("isSuccess")]
+    public bool IsSuccess { get; set; }
+    [JsonPropertyName("message")]
+    public string ResponseMessage { get; set; }
 }

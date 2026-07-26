@@ -1,21 +1,20 @@
 using System.Text.Json.Serialization;
 
-namespace Chess.Application.Contracts.Responses.GameProcess
-{
-    public class GameResponse(bool isSuccess, string message,string fen,
-    Dictionary<int, List<int>>? legalMoves, List<string> moveNotations, bool isGameEnded, string? winner)
+namespace Chess.Application.Contracts.Responses.GameProcess;
 
-            : BaseResponse(isSuccess, message)
-    {
-        [JsonPropertyName("fen")]
-        public string Fen { get; set; } = fen;
-        [JsonPropertyName("legalMoves")]
-        public Dictionary<int, List<int>>? LegalMoves { get; set; } = legalMoves;
-        [JsonPropertyName("moveNotations")]
-        public List<string> MoveNotations { get; set; } = moveNotations;
-        [JsonPropertyName("isGameEnded")]
-        public bool IsGameEnded { get; set; } = isGameEnded;
-        [JsonPropertyName("winner")]
-        public string? Winner { get; set; } = winner;
-    }
+public class GameResponse(bool isSuccess, string message,string fen,
+Dictionary<int, List<int>>? legalMoves, List<string> moveNotations, bool isGameEnded, string? winner)
+
+        : BaseResponse(isSuccess, message)
+{
+    [JsonPropertyName("fen")]
+    public string Fen { get; set; } = fen;
+    [JsonPropertyName("legalMoves")]
+    public Dictionary<int, List<int>>? LegalMoves { get; set; } = legalMoves;
+    [JsonPropertyName("moveNotations")]
+    public List<string> MoveNotations { get; set; } = moveNotations;
+    [JsonPropertyName("isGameEnded")]
+    public bool IsGameEnded { get; set; } = isGameEnded;
+    [JsonPropertyName("winner")]
+    public string? Winner { get; set; } = winner;
 }

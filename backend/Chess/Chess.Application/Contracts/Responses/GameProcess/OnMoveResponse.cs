@@ -1,8 +1,7 @@
-namespace Chess.Application.Contracts.Responses.GameProcess
+namespace Chess.Application.Contracts.Responses.GameProcess;
+
+public class OnMoveResponse(string fen, List<string> moveNotations)
 {
-    public class OnMoveResponse(string fen, List<string> moveNotations)
-    {
-        public string Fen { get; set; } = fen;
-        public List<string> MoveNotations { get; set; } = moveNotations;
-    }
+    public string Fen { get; set; } = fen;
+    public List<string> MoveNotations { get; set; } = moveNotations;
 }

@@ -11,6 +11,10 @@ type MakeMoveRequest = {
   fenBeforeMove: string;
 };
 
+type PromotePawnRequest = MakeMoveRequest & {
+  chosenPiece: string;
+};
+
 export type GameResponse = {
   isSuccess: boolean;
   message: string;
@@ -31,6 +35,14 @@ export async function startGame(signal?: AbortSignal): Promise<GameResponse> {
 
 export async function makeMove(request: MakeMoveRequest, signal?: AbortSignal): Promise<GameResponse> {
   return apiAuthenticatedRequest<GameResponse>(`${API_BASE_URLS.chess}/api/ChessMovement/MakeMove`, {
+    method: "POST",
+    body: request,
+    signal
+  });
+}
+
+export async function promotePawn(request: PromotePawnRequest, signal?: AbortSignal): Promise<GameResponse> {
+  return apiAuthenticatedRequest<GameResponse>(`${API_BASE_URLS.chess}/api/ChessMovement/PromotePawn`, {
     method: "POST",
     body: request,
     signal

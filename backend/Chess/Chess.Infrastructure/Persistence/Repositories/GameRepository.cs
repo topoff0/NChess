@@ -29,6 +29,15 @@ public sealed class GameRepository(GamesDbContext dbContext) : IGameRepository
                 token);
     }
 
+    public Task<List<GameInfo>> GetFinishedByPlayerIdAsync(Guid playerId, CancellationToken token)
+    {
+        return _dbContext.Games
+            .Where(game => (game.FirstPlayerId == playerId || game.SecondPlayerId == playerId)
+                && !game.IsActiveGame)
+            .OrderByDescending(game => game.FinishedAt)
+            .ToListAsync(token);
+    }
+
     public async Task AddAsync(GameInfo game, CancellationToken token)
     {
         await _dbContext.Games.AddAsync(game, token);
