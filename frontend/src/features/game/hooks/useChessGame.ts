@@ -1,5 +1,14 @@
-import { makeMove, startGame, type GameResponse } from "@/features/game/api/chessApi";
+import { makeMove, promotePawn, startGame, type GameResponse } from "@/features/game/api/chessApi";
+import { parseFenBoard, type FenPiece } from "@/features/game/lib/fen";
 import { useEffect, useReducer } from "react";
+
+export type PromotionPiece = "Q" | "R" | "B" | "N";
+
+type PendingPromotion = {
+  fenBeforeMove: string;
+  startSquare: number;
+  targetSquare: number;
+};
 
 type GameState =
   | { status: "loading" }
@@ -12,15 +21,20 @@ type GameState =
       selectedSquare: number | null;
       isMoving: boolean;
       moveError: string | null;
+      pendingPromotion: PendingPromotion | null;
+      isGameEnded: boolean;
+      winner: string | null;
     };
 
 type GameAction =
   | { type: "load-failed"; message: string }
   | { type: "game-loaded"; game: GameResponse }
   | { type: "square-selected"; square: number | null }
+  | { type: "promotion-requested"; promotion: PendingPromotion }
   | { type: "move-started" }
   | { type: "move-succeeded"; game: GameResponse }
-  | { type: "move-failed"; message: string };
+  | { type: "move-failed"; message: string }
+  | { type: "new-game-started" };
 
 const toReadyState = (game: GameResponse): GameState => ({
   status: "ready",
@@ -29,7 +43,10 @@ const toReadyState = (game: GameResponse): GameState => ({
   moveNotations: game.moveNotations,
   selectedSquare: null,
   isMoving: false,
-  moveError: null
+  moveError: null,
+  pendingPromotion: null,
+  isGameEnded: game.isGameEnded,
+  winner: game.winner
 });
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
@@ -40,6 +57,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return toReadyState(action.game);
     case "square-selected":
       return state.status === "ready" ? { ...state, selectedSquare: action.square } : state;
+    case "promotion-requested":
+      return state.status === "ready"
+        ? {
+            ...state,
+            selectedSquare: null,
+            pendingPromotion: action.promotion,
+            moveError: null
+          }
+        : state;
     case "move-started":
       return state.status === "ready" ? { ...state, isMoving: true, moveError: null } : state;
     case "move-succeeded":
@@ -48,7 +74,19 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return state.status === "ready"
         ? { ...state, isMoving: false, moveError: action.message, selectedSquare: null }
         : state;
+    case "new-game-started":
+      return { status: "loading" };
   }
+};
+
+const getPieceAtSquare = (fen: string, square: number): FenPiece | null => {
+  return parseFenBoard(fen.split(" ")[0]).find((boardSquare) => boardSquare.square === square)?.piece ?? null;
+};
+
+const isPlayerPromotionMove = (fen: string, startSquare: number, targetSquare: number): boolean => {
+  const piece = getPieceAtSquare(fen, startSquare);
+
+  return piece === "P" && targetSquare >= 56;
 };
 
 export const useChessGame = () => {
@@ -78,6 +116,20 @@ export const useChessGame = () => {
     return () => controller.abort();
   }, []);
 
+  const startNewGame = async () => {
+    dispatch({ type: "new-game-started" });
+
+    try {
+      const game = await startGame();
+      dispatch({ type: "game-loaded", game });
+    } catch (error) {
+      dispatch({
+        type: "load-failed",
+        message: error instanceof Error ? error.message : "Failed to start a new game"
+      });
+    }
+  };
+
   const move = async (fenBeforeMove: string, startSquare: number, targetSquare: number) => {
     dispatch({ type: "move-started" });
 
@@ -92,14 +144,44 @@ export const useChessGame = () => {
     }
   };
 
+  const choosePromotionPiece = async (piece: PromotionPiece) => {
+    if (state.status !== "ready" || state.pendingPromotion === null || state.isMoving) {
+      return;
+    }
+
+    dispatch({ type: "move-started" });
+
+    try {
+      const game = await promotePawn({ ...state.pendingPromotion, chosenPiece: piece });
+      dispatch({ type: "move-succeeded", game });
+    } catch (error) {
+      dispatch({
+        type: "move-failed",
+        message: error instanceof Error ? error.message : "Failed to promote the pawn"
+      });
+    }
+  };
+
   const selectSquare = (square: number) => {
-    if (state.status !== "ready" || state.isMoving) {
+    if (state.status !== "ready" || state.isMoving || state.pendingPromotion !== null || state.isGameEnded) {
       return;
     }
 
     const legalTargets = state.selectedSquare !== null ? (state.legalMoves[state.selectedSquare] ?? []) : [];
 
     if (state.selectedSquare !== null && legalTargets.includes(square)) {
+      if (isPlayerPromotionMove(state.fen, state.selectedSquare, square)) {
+        dispatch({
+          type: "promotion-requested",
+          promotion: {
+            fenBeforeMove: state.fen,
+            startSquare: state.selectedSquare,
+            targetSquare: square
+          }
+        });
+        return;
+      }
+
       void move(state.fen, state.selectedSquare, square);
       return;
     }
@@ -108,5 +190,5 @@ export const useChessGame = () => {
     dispatch({ type: "square-selected", square: hasLegalMoves ? square : null });
   };
 
-  return { state, selectSquare };
+  return { state, selectSquare, choosePromotionPiece, startNewGame };
 };
