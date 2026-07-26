@@ -6,10 +6,11 @@ type ChessBoardProps = {
   fen: string;
   legalMoves: Record<string, number[]>;
   selectedSquare: number | null;
+  isInteractive: boolean;
   onSquareClick: (square: number) => void;
 };
 
-export const ChessBoard = ({ fen, legalMoves, selectedSquare, onSquareClick }: ChessBoardProps) => {
+export const ChessBoard = ({ fen, legalMoves, selectedSquare, isInteractive, onSquareClick }: ChessBoardProps) => {
   const board = useMemo(() => {
     try {
       return parseFenBoard(fen.split(" ")[0]);
@@ -38,9 +39,10 @@ export const ChessBoard = ({ fen, legalMoves, selectedSquare, onSquareClick }: C
           <button
             className={`relative flex aspect-square items-center justify-center text-3xl font-bold sm:text-5xl
             ${square.isLight ? "bg-cream" : "bg-wood"}
-            ${isSelected ? "outline outline-4 -outline-offset-4 outline-moss" : ""}`}
+            ${isSelected ? "outline-4 -outline-offset-4 outline-moss" : ""}`}
             key={square.key}
             type="button"
+            disabled={!isInteractive}
             onClick={() => onSquareClick(square.square)}>
             {square.piece && (
               <img
